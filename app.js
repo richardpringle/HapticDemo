@@ -31,8 +31,8 @@ serial0.on('open', function () {
 	serial0.write(0x01, function(err, data) {
 		console.log('results ' + data);
 	});
-	serial0.on('data', function(data) {
-		console.log(data);
+	serial0.on('data', function(data) { 
+		console.log(data.readFloatLE());
 		// serial0.write(++i, function(err, data) {
 		// 	console.log('results2 ' + data);
 		// });
