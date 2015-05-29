@@ -25,16 +25,20 @@ var serial0 = new SerialPort("COM10", {baudrate: 115200, parser: serialport.pars
 // });
 
 var i = 0x01;
+var b = new Buffer(2);
+b.writeUIntLE(0xaaff, 0, 2);
+console.log(b);
 
 serial0.on('open', function () {
 	console.log('open');
-	serial0.write(0x01, function(err, data) {
-		console.log('results ' + data);
-	});
+		serial0.write(b, function(err, data) {
+			console.log('resultsOut ' + data);
+		});
 	serial0.on('data', function(data) { 
-		console.log(data.readFloatLE());
-		// serial0.write(++i, function(err, data) {
-		// 	console.log('results2 ' + data);
-		// });
+		// console.log(data.readFloatLE());
+		serial0.write(b, function(err, data) {
+			console.log('resultsIn ' + data);
+		});
+		console.log(data);
 	});
 });
