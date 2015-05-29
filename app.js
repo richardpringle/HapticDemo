@@ -24,21 +24,40 @@ var serial0 = new SerialPort("COM10", {baudrate: 115200, parser: serialport.pars
 // 	}).listen(1000);
 // });
 
-var i = 0x01;
-var b = new Buffer(2);
-b.writeUIntLE(0xaaff, 0, 2);
-console.log(b);
+var fx = 0.0;
+var fy = 12.0;
+buffx = new Buffer(4);
+buffx.writeFloatLE(fx);
+buffy = new Buffer(4);
+buffy.writeFloatLE(fy);
+
+var buff_xy = [buffx,buffy]
+
+bufForce = Buffer.concat(buff_xy);
+
+var allData;
+
 
 serial0.on('open', function () {
 	console.log('open');
-		serial0.write(b, function(err, data) {
+		serial0.write(bufForce, function(err, data) {
 			console.log('resultsOut ' + data);
+			if (err) {
+				console.error(err);
+			}
 		});
 	serial0.on('data', function(data) { 
-		// console.log(data.readFloatLE());
-		serial0.write(b, function(err, data) {
-			console.log('resultsIn ' + data);
+		allData = 	[
+						data.slice(0,4).readFloatLE(),
+						data.slice(4,8).readFloatLE(),
+						data.slice(8,12).readFloatLE(),
+						data.slice(12,16).readFloatLE()
+					]
+		console.log(allData);
+		serial0.write(bufForce, function(err, data) {
+			if (err) {
+				console.error(err);
+			}
 		});
-		console.log(data);
 	});
 });
