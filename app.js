@@ -25,7 +25,7 @@ var serial0 = new SerialPort("COM10", {baudrate: 115200, parser: serialport.pars
 // });
 
 var fx = 0.0;
-var fy = 12.0;
+var fy = -12.0;
 buffx = new Buffer(4);
 buffx.writeFloatLE(fx);
 buffy = new Buffer(4);
@@ -37,7 +37,7 @@ bufForce = Buffer.concat(buff_xy);
 
 var allData;
 
-
+// The following code works for receiving the position and velocity data
 serial0.on('open', function () {
 	console.log('open');
 		serial0.write(bufForce, function(err, data) {
@@ -61,3 +61,4 @@ serial0.on('open', function () {
 		});
 	});
 });
+
