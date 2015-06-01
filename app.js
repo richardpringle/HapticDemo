@@ -35,10 +35,10 @@ serial0.on('open', function () {
 						data.slice(12,16).readFloatLE()
 					]
 		console.log(allData);
-		serial0.write(bufForce, function(err, data) {
-			if (err) {
-				console.error(err);
-			}
-		});
+		// serial0.write(bufForce, function(err, data) {
+		// 	if (err) {
+		// 		console.error(err);
+		// 	}
+		// });
 	});
 });
