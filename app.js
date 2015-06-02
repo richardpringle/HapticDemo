@@ -40,6 +40,7 @@ serial0.on('open', function () {
 				console.error(err);
 			}
 		});
+		
 		// Once data is received, slice the data into float position and velocity
 		serial0.on('data', function(data) { 
 			allData = 	[
@@ -50,6 +51,7 @@ serial0.on('open', function () {
 						];
 			console.log(allData);
 			// setInterval(function () {
+				// Writes data to client and keeps connection open
 				res.write(allData.toString() + '\n');
 			// }, 100);
 			serial0.write(bufForce, function(err, data) {
@@ -59,6 +61,6 @@ serial0.on('open', function () {
 			});
 		});
 
-	}).listen(1000);
+	}).listen(1000); // Listening to port 1000 on local host
 
 });
