@@ -1,13 +1,17 @@
 // Requirements
-var app = require('express')();
+var express = require('express');
+var app =express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var path = require('path');
 
-var indexPath = path.join(__dirname, 'index.html');
+app.use(express.static(__dirname));
+// var indexPath = path.join(__dirname, 'index.html');
+
 
 app.get('/', function(req, res){
-	res.sendFile(indexPath);
+	// res.sendFile(indexPath);
+	res.sendFile('index.html')
 });
 
 io.on('connection', function(socket){
@@ -20,6 +24,7 @@ io.on('connection', function(socket){
 
 });
 
-http.listen(1000, function(){
+http.listen(1000, '142.157.36.23', function(){
+  console.log('server running at 142.157.36.26')
   console.log('listening on *:1000');
 });

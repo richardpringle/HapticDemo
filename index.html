@@ -21,9 +21,12 @@
 
     <div id="viewport"></div>
 
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-    <script src="https://cdn.lukej.me/physicsjs/0.6.0/physicsjs.full.min.js"></script>
+    <!--For the actual demo we need the libraries to be installed locally-->
+<!--  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+      <script src="http://code.jquery.com/jquery-1.11.1.js"></script> -->
+    <script src="/js/socket.io-1.2.0.js"></script>
+    <script src="/js/jquery-1.11.1.js"></script>
+    <script src="/js/physicsjs-full.js"></script>
     
     <script>
       var socket = io();
@@ -31,37 +34,70 @@
 
   </body>
 
-  <script type="text/javascript">
-    Physics( function (world) {
+  <script>
 
-      // bounds of the window
-      var viewportBounds = Physics.aabb(0, 0, window.innerWidth, window.innerHeight)
-          ,edgeBounce
-          ,renderer
-          ;
+    Physics(function(world){
 
-      // create a renderer
-      renderer = Physics.renderer('canvas', {
-          el: 'viewport'
+      var viewWidth = 944;
+      var viewHeight = 950;
+
+      var renderer = Physics.renderer('canvas', {
+        el: 'viewport',
+        width: viewWidth,
+        height: viewHeight,
+        meta: false, // don't display meta data
+        styles: {
+            // set colors for the circle bodies
+            'circle' : {
+                strokeStyle: '#351024',
+                lineWidth: 1,
+                fillStyle: '#d33682',
+                angleIndicator: '#351024'
+            }
+        }
       });
 
       // add the renderer
-      world.add(renderer);
+      world.add( renderer );
       // render on each step
-      world.on('step', function () {
-          world.render();
+      world.on('step', function(){
+        world.render();
       });
-      
-      world.add( Physics.body('circle', {
-          x: renderer.width * 0.7
-          ,y: renderer.height * 0.3
-          ,vx: -0.3
-          ,radius: 40
-          ,styles: {
-              fillStyle: '#6c71c4'
-              ,angleIndicator: '#3b3e6b'
-          }
+
+      // bounds of the window
+      var viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+
+      // constrain objects to these bounds
+      world.add(Physics.behavior('edge-collision-detection', {
+          aabb: viewportBounds,
+          restitution: 0.99,
+          cof: 0.99
       }));
+
+      // add a circle
+      world.add(
+          Physics.body('circle', {
+            x: 50, // x-coordinate
+            y: 30, // y-coordinate
+            vx: 0.2, // velocity in x-direction
+            vy: 0.01, // velocity in y-direction
+            radius: 20
+          })
+      );
+
+      // ensure objects bounce when edge collision is detected
+      world.add( Physics.behavior('body-impulse-response') );
+
+      // add some gravity
+      world.add( Physics.behavior('constant-acceleration') );
+
+      // subscribe to ticker to advance the simulation
+      Physics.util.ticker.on(function( time, dt ){
+          world.step( time );
+      });
+
+      // start the ticker
+      Physics.util.ticker.start();
 
     });
 
