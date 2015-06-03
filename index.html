@@ -1,40 +1,71 @@
 <!doctype html>
 <html>
-
-<!--Getting rid of all of this to try and render physics circle -->
   
   <head>
     <title>app</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
+    <style type="text/css">
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+
+      #viewport {
+        position: relative;
+        height: 100%;
+        background: #1d1f20;
+      }
     </style>
   </head>
   
   <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
+
+    <div id="viewport"></div>
+
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="https://cdn.lukej.me/physicsjs/0.6.0/physicsjs.full.min.js"></script>
+    
     <script>
       var socket = io();
-      $('form').submit(function(){
-        // socket.emit('chat message', $('#m').val());
-        $('#m').val('');
-        return false;
-      });
-      socket.on('chat message', function(msg){
-        $('#messages').append($('<li>').text(msg));
-      });
     </script>
+
   </body>
 
+  <script type="text/javascript">
+    Physics( function (world) {
+
+      // bounds of the window
+      var viewportBounds = Physics.aabb(0, 0, window.innerWidth, window.innerHeight)
+          ,edgeBounce
+          ,renderer
+          ;
+
+      // create a renderer
+      renderer = Physics.renderer('canvas', {
+          el: 'viewport'
+      });
+
+      // add the renderer
+      world.add(renderer);
+      // render on each step
+      world.on('step', function () {
+          world.render();
+      });
+      
+      world.add( Physics.body('circle', {
+          x: renderer.width * 0.7
+          ,y: renderer.height * 0.3
+          ,vx: -0.3
+          ,radius: 40
+          ,styles: {
+              fillStyle: '#6c71c4'
+              ,angleIndicator: '#3b3e6b'
+          }
+      }));
+
+    });
+
+  </script>
+
 </html>
+

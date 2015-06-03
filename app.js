@@ -58,13 +58,13 @@ serial0.on('open', function () {
 							data.slice(12,16).readFloatLE()
 						];
 			console.log(state);
-			socket.emit('chat message', JSON.stringify(state));
-			serial0.write(bufForce, function(err, data) {
-				console.log('resultsOut ' + data);
-				if (err) {
-					console.error(err);
-				}
-			});
+			// socket.emit('chat message', JSON.stringify(state));
+			// serial0.write(bufForce, function(err, data) {
+			// 	console.log('resultsOut ' + data);
+			// 	if (err) {
+			// 		console.error(err);
+			// 	}
+			// });
 		});
 
 	  	socket.on('disconnect', function(){
@@ -78,53 +78,3 @@ serial0.on('open', function () {
 	});
 
 });
-
-
-
-// The following code works for receiving the position and velocity data
-// serial0.on('open', function () {
-	
-// 	console.log(serial0); // Print serial0 object
-
-// 	// Start http server (must happen within open Serial port)
-// 	var server = http.createServer(function (req, res) {
-		
-// 		console.log(this); // Print server object
-// 		res.writeHead(200, {'Content-Type': 'text/html'});
-		
-// 		// Writes to Arduino Notifying it to send a message back
-// 		serial0.write(bufForce, function(err, data) {
-// 			console.log('resultsOut ' + data);
-// 			if (err) {
-// 				console.error(err);
-// 			}
-// 		});
-
-// 		// Writes index.html to client (browser);
-// 		res.end(file);
-		
-// 		// Once data is received, slice the data into float position and velocity
-// 		serial0.on('data', function(data) { 
-// 			state = 	[
-// 							data.slice(0,4).readFloatLE(),
-// 							data.slice(4,8).readFloatLE(),
-// 							data.slice(8,12).readFloatLE(),
-// 							data.slice(12,16).readFloatLE()
-// 						];
-// 			console.log(state);
-			
-// 			// Writes data to client and keeps connection open
-// 			// res.write(JSON.stringify(state) + '\n');
-
-// 			// Write Force after data is received
-// 			// serial0.write(bufForce, function(err, data) {
-// 			// 	if (err) {
-// 			// 		console.error(err);
-// 			// 	}
-// 			// });
-
-// 		});
-
-// 	}).listen(1000); // Listening to port 1000 on local host
-
-// });
