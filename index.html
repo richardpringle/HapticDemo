@@ -27,16 +27,15 @@
     <script src="/js/socket.io-1.2.0.js"></script>
     <script src="/js/jquery-1.11.1.js"></script>
     <script src="/js/physicsjs-full.js"></script>
-    
-    <script>
-      var socket = io();
-    </script>
 
   </body>
 
   <script>
 
-    Physics(function(world){
+    var socket = io();
+    var me;
+
+    Physics(function (world) {
 
       var viewWidth = 944;
       var viewHeight = 950;
@@ -58,7 +57,7 @@
       });
 
       // add the renderer
-      world.add( renderer );
+      world.add(renderer);
       // render on each step
       world.on('step', function(){
         world.render();
@@ -75,25 +74,32 @@
       }));
 
       // add a circle
-      world.add(
-          Physics.body('circle', {
-            x: 50, // x-coordinate
-            y: 30, // y-coordinate
-            vx: 0.2, // velocity in x-direction
-            vy: 0.01, // velocity in y-direction
-            radius: 20
-          })
-      );
+      me = Physics.body('circle', {
+        x: 500, // x-coordinate
+        y: 50, // y-coordinate
+        vx: 0.0, // velocity in x-direction
+        vy: 0.0, // velocity in y-direction
+        radius: 20
+      });
+      world.add(me);
+      
+      socket.on('state', function (state) {
+        var x = Math.round(state[0]*10) + 500;
+        var y = Math.round(state[1]*10)/2 - 200;
+        me.state.pos.set(x,y);
+        console.log(me.state.pos.get(1));
+      });
 
-      // ensure objects bounce when edge collision is detected
-      world.add( Physics.behavior('body-impulse-response') );
+      // // ensure objects bounce when edge collision is detected
+      // world.add( Physics.behavior('body-impulse-response') );
 
-      // add some gravity
-      world.add( Physics.behavior('constant-acceleration') );
+      // // add some gravity
+      // world.add( Physics.behavior('constant-acceleration') );
 
       // subscribe to ticker to advance the simulation
-      Physics.util.ticker.on(function( time, dt ){
+      Physics.util.ticker.on( function ( time, dt ) {
           world.step( time );
+          console.log(time);
       });
 
       // start the ticker
