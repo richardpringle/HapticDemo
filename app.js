@@ -1,5 +1,6 @@
 // Requirements
-var app = require('express')();
+var express = require('express');
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var path = require('path');
@@ -8,10 +9,11 @@ var util = require('util');
 
 // Start Serial: One line commented for system not in use
 var SerialPort = serialport.SerialPort;
-// var serial0 = new SerialPort("/dev/ttymxc3", {baudrate: 115200});
-var serial0 = new SerialPort("COM10", {baudrate: 115200});
+var serial0 = new SerialPort("/dev/ttymxc3", {baudrate: 115200});
+// var serial0 = new SerialPort("COM10", {baudrate: 115200});
 
-var indexPath = path.join(__dirname, 'index.html');
+// Gives access to the entire directory (for client-side libraries)
+app.use(express.static(__dirname));
 
 // Create buffers to send to Arduino
 var fx = 0.0;
@@ -26,9 +28,11 @@ var buff_xy = [buffx,buffy]
 bufForce = Buffer.concat(buff_xy);
 // var for data received
 var state;
+var time;
 
 
-// The following code works for receiving the position and velocity data
+// The following code works for receiving the position and velocity data on COM10
+// Haven't tested for /dev/ttymxc3 (might need to change the bash settings)
 serial0.on('open', function () {
 	
 	console.log(serial0); // Print serial0 object
@@ -57,14 +61,15 @@ serial0.on('open', function () {
 							data.slice(8,12).readFloatLE(),
 							data.slice(12,16).readFloatLE()
 						];
+
+			socket.emit('state', state);
 			console.log(state);
-			// socket.emit('chat message', JSON.stringify(state));
-			// serial0.write(bufForce, function(err, data) {
-			// 	console.log('resultsOut ' + data);
-			// 	if (err) {
-			// 		console.error(err);
-			// 	}
-			// });
+
+			serial0.write(bufForce, function(err, data) {
+				if (err) {
+					console.error(err);
+				}
+			});
 		});
 
 	  	socket.on('disconnect', function(){
@@ -73,8 +78,12 @@ serial0.on('open', function () {
 
 	});
 
-	http.listen(1000, function(){
-	  console.log('listening on *:1000');
+	// Lines below commented for use on PC
+	http.listen(3000, '142.157.114.55', function(){
+	  console.log('listening on 142.157.114.55:3000');
 	});
+	// http.listen(1000, '142.157.36.23', function(){
+	//   console.log('listening on 142.157.36.23:1000');
+	// });
 
 });
