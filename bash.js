@@ -6,4 +6,4 @@ child = exec('cat /sys/class/gpio/gpio40/direction', function (error, stdout, st
 	if (error) {
 		console.log('exec error: ' + error)
 	}
-});
+})
