@@ -57,6 +57,7 @@ serial0.on('open', function () {
 
 		// Once data is received, slice the data into float position and velocity
 		serial0.on('data', function(data) { 
+			data += data;
 			// state = 	[
 			// 				data.slice(0,4).readFloatLE(),
 			// 				data.slice(4,8).readFloatLE(),
