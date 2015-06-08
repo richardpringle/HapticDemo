@@ -22,8 +22,8 @@ io.on('connection', function(socket){
 
 });
 
-http.listen(3000, '142.157.114.55', function(){
-  console.log('server running at 142.157.114.55')
+http.listen(3000, '142.157.36.63', function(){
+  console.log('server running at 142.157.36.63')
   console.log('listening on port 3000');
 });
 

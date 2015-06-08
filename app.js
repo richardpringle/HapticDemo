@@ -9,8 +9,8 @@ var util = require('util');
 
 // Start Serial: One line commented for system not in use
 var SerialPort = serialport.SerialPort;
-var serial0 = new SerialPort("/dev/ttymxc3", {baudrate: 115200});
-// var serial0 = new SerialPort("COM10", {baudrate: 115200});
+// var serial0 = new SerialPort("/dev/ttymxc3", {baudrate: 115200});
+var serial0 = new SerialPort("COM10", {baudrate: 115200});
 
 // Gives access to the entire directory (for client-side libraries)
 app.use(express.static(__dirname));
@@ -29,7 +29,6 @@ bufForce = Buffer.concat(buff_xy);
 // var for data received
 stateBuffer = new Buffer(16);
 var start = 0;
-var count = 0;
 var state;
 var time;
 
@@ -85,11 +84,11 @@ serial0.on('open', function () {
 	});
 
 	// Lines below commented for use on PC
-	http.listen(3000, '142.157.114.67', function(){
-	  console.log('listening on 142.157.114.67:3000');
-	});
-	// http.listen(1000, '142.157.36.23', function(){
-	//   console.log('listening on 142.157.36.23:1000');
+	// http.listen(3000, '142.157.114.67', function(){
+	//   console.log('listening on 142.157.114.67:3000');
 	// });
+	http.listen(1000, '142.157.36.63', function(){
+	  console.log('listening on 142.157.36.63:1000');
+	});
 
 });

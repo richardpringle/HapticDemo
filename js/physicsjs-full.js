@@ -3005,7 +3005,8 @@ Physics.scratchpad = (function(){
     }
 
     // start stepping if we can
-    if ( window.requestAnimationFrame ){
+    // if ( window.requestAnimationFrame ){
+    if (1) { 
         step();
     } else {
         active = false;
