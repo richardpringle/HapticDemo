@@ -27,6 +27,9 @@ var buff_xy = [buffx,buffy]
 // Concats buffx and buffy into new Buffer bufForce
 bufForce = Buffer.concat(buff_xy);
 // var for data received
+stateBuffer = new Buffer(16);
+var start = 0;
+var count = 0;
 var state;
 var time;
 
@@ -56,18 +59,23 @@ serial0.on('open', function () {
 		}, 1000);
 
 		// Once data is received, slice the data into float position and velocity
-		serial0.on('data', function(data) { 
-			data += data;
-			// state = 	[
-			// 				data.slice(0,4).readFloatLE(),
-			// 				data.slice(4,8).readFloatLE(),
-			// 				data.slice(8,12).readFloatLE(),
-			// 				data.slice(12,16).readFloatLE()
-			// 			];
+		serial0.on('data', function(data) {
+		// if (data.length < 16) append new data to 16 byte buffer
+		// read data into state with 16ByteBuffer.slice
+			data.copy(stateBuffer, start);
+			start += data.length;
+			if (start === 16) {
+				state = 	[
+								stateBuffer.slice(0,4).readFloatLE(),
+								stateBuffer.slice(4,8).readFloatLE(),
+								stateBuffer.slice(8,12).readFloatLE(),
+								stateBuffer.slice(12,16).readFloatLE()
+							];
 
-			// socket.emit('state', state);
-			// console.log(state);
-			console.log(data);
+				// socket.emit('state', state);
+				console.log(state);
+				start = 0;
+			}
 		});
 
 	  	socket.on('disconnect', function(){
