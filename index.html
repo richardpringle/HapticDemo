@@ -4,8 +4,9 @@
   <head>
     <title>app</title>
     <style type="text/css">
-      html, body {
+      html, body, canvas {
         height: 100%;
+        width: 100%;
         margin: 0;
       }
 
@@ -14,100 +15,69 @@
         height: 100%;
         background: #1d1f20;
       }
+
     </style>
+    <script src="/js/socket.io-1.2.0.js"></script>
+    <script src="/js/jquery-1.11.1.js"></script>
+    <script src="/js/paper-full.js"></script>
+    <script type="text/paperscript" canvas="myCanvas">
+      var socket = io();
+
+      function map(x, inMin, inMax, outMin, outMax) {
+        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+      }
+
+      var topLeft = new Shape.Circle({
+        center: new Point(0,0),
+        radius: 30,
+        strokeColor: 'red',
+        fillColor: 'red'
+      });
+      var topRight = new Shape.Circle({
+        center: new Point(view.bounds.width, 0),
+        radius: 30,
+        strokeColor: 'red',
+        fillColor: 'red'
+      });
+      var bottomLeft = new Shape.Circle({
+        center: new Point(0,view.bounds.height),
+        radius: 30,
+        strokeColor: 'red',
+        fillColor: 'red'
+      });
+      var bottomRight = new Shape.Circle({
+        center:new Point(view.bounds.width,view.bounds.height),
+        radius: 30,
+        strokeColor: 'red',
+        fillColor: 'red'
+      });
+
+      var user = new Shape.Circle({
+        center: view.center,
+        radius: 30,
+        strokeColor: 'DarkGoldenRod',
+        strokeWidth: 20
+      });
+
+      socket.on('state', function (state) {
+        // BACKWARDS!!!!!!!
+        var y = map(state[0], -95, 95, 0, 1024);
+        var x = map(state[1], 87, 315, 0, 768);
+        user.position = new Point(x,y);
+        view.draw();
+      });
+
+
+    </script>
   </head>
   
   <body>
 
-    <div id="viewport"></div>
-
-    <!--For the actual demo we need the libraries to be installed locally-->
-<!--  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-      <script src="http://code.jquery.com/jquery-1.11.1.js"></script> -->
-    <script src="/js/socket.io-1.2.0.js"></script>
-    <script src="/js/jquery-1.11.1.js"></script>
-    <script src="/js/physicsjs-full.js"></script>
+    <div id="viewport">
+      <canvas id="myCanvas" resize="true"></canvas>
+    </div>
 
   </body>
-
-  <script>
-
-    var socket = io();
-    var me;
-
-    Physics(function (world) {
-
-      var viewWidth = 944;
-      var viewHeight = 950;
-
-      var renderer = Physics.renderer('canvas', {
-        el: 'viewport',
-        width: viewWidth,
-        height: viewHeight,
-        meta: false, // don't display meta data
-        styles: {
-            // set colors for the circle bodies
-            'circle' : {
-                strokeStyle: '#351024',
-                lineWidth: 1,
-                fillStyle: '#d33682',
-                angleIndicator: '#351024'
-            }
-        }
-      });
-
-      // add the renderer
-      world.add(renderer);
-      // render on each step
-      world.on('step', function(){
-        world.render();
-      });
-
-      // bounds of the window
-      var viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
-
-      // constrain objects to these bounds
-      world.add(Physics.behavior('edge-collision-detection', {
-          aabb: viewportBounds,
-          restitution: 0.99,
-          cof: 0.99
-      }));
-
-      // add a circle
-      me = Physics.body('circle', {
-        x: 500, // x-coordinate
-        y: 50, // y-coordinate
-        vx: 0.0, // velocity in x-direction
-        vy: 0.0, // velocity in y-direction
-        radius: 20
-      });
-      world.add(me);
-      
-      socket.on('state', function (state) {
-        var x = Math.round(state[0]*10) + 500;
-        var y = Math.round(state[1]*10)/2 - 200;
-        me.state.pos.set(x,y);
-        console.log(me.state.pos.get(1));
-      });
-
-      // // ensure objects bounce when edge collision is detected
-      // world.add( Physics.behavior('body-impulse-response') );
-
-      // // add some gravity
-      // world.add( Physics.behavior('constant-acceleration') );
-
-      // subscribe to ticker to advance the simulation
-      Physics.util.ticker.on( function ( time, dt ) {
-          world.step( time );
-          console.log(time);
-      });
-
-      // start the ticker
-      Physics.util.ticker.start();
-
-    });
-
-  </script>
 
 </html>
 

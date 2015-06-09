@@ -31,6 +31,7 @@ stateBuffer = new Buffer(16);
 var start = 0;
 var state;
 var time;
+var i = 0;
 
 
 // The following code works for receiving the position and velocity data on COM10
@@ -47,15 +48,13 @@ serial0.on('open', function () {
 		
 		console.log('a user connected');
 
-		setInterval( function () {
-			// Writes to Arduino Notifying it to send a message back
-			serial0.write(bufForce, function(err, data) {
-				console.log('resultsOut ' + data);
-				if (err) {
-					console.error(err);
-				}
-			});
-		}, 1000);
+		// Writes to Arduino Notifying it to send a message back
+		serial0.write(bufForce, function(err, data) {
+			console.log('resultsOut ' + data);
+			if (err) {
+				console.error(err);
+			}
+		});
 
 		// Once data is received, slice the data into float position and velocity
 		serial0.on('data', function(data) {
@@ -71,11 +70,22 @@ serial0.on('open', function () {
 								stateBuffer.slice(12,16).readFloatLE()
 							];
 
-				// socket.emit('state', state);
-				console.log(state);
+				// console.log(Date.now());
+				console.log(state[1]);
 				start = 0;
+				// Writes to Arduino Notifying it to send a message back
+				serial0.write(bufForce, function(err, data) {
+					if (err) {
+						console.error(err);
+					}
+				});				
+			
 			}
 		});
+
+		setInterval( function () {
+			socket.emit('state', state);
+		}, 17);
 
 	  	socket.on('disconnect', function(){
 	    	console.log('user disconnected');
@@ -87,8 +97,8 @@ serial0.on('open', function () {
 	// http.listen(3000, '142.157.114.67', function(){
 	//   console.log('listening on 142.157.114.67:3000');
 	// });
-	http.listen(1000, '142.157.36.63', function(){
-	  console.log('listening on 142.157.36.63:1000');
+	http.listen(1000, '142.157.36.66', function(){
+	  console.log('listening on 142.157.36.66:1000');
 	});
 
 });
