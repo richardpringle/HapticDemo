@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+
+    <title> Morgane Demo </title>
+
+    <style type="text/css">
+      html, body, canvas {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+      }
+
+      #viewport {
+        position: relative;
+        height: 100%;
+        background: #1d1f20;
+      }
+    </style>
+
+    <script src="node_modules/chipmunk/cp.js"></script>
+    <script src="paper-js/dist/paper-full.min.js"></script>
+    <script src="socket.io.js"></script>
+
+    <script type="text/paperscript" canvas="myCanvas">
+
+      // The socket client 
+      var socket = io();
+
+      var width = 1024;
+      var height = 768;
+
+      // Create the circle
+      var circle = new Path.Circle(new Point(500, 200), 60);
+
+      console.log(circle.position);
+
+      // Customize it 
+      circle.fillColor = {
+        hue: 60,
+        saturation: 1,
+        brightness: 1
+      };
+      circle.strokeColor = 'black';
+      circle.strokeWidth = 5;
+      circle.opacity = 0.9;
+
+      socket.on('draw', function (data) {
+        circle.position.x = data[0];
+        circle.position.y = data[1];
+        view.draw();
+      }); 
+
+      socket.emit('ready', 'ready');
+    </script>
+
+  </head>
+
+  <body>
+
+    <div id="viewport">
+      <canvas id="myCanvas" resize="true"></canvas>
+    </div>
+
+  </body>
+
+</html>
