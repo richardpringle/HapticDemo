@@ -1,4 +1,4 @@
- START REQUIREMENTS */ 
+ /* START REQUIREMENTS */
 
 var express = require('express');
 var app = express();
@@ -64,7 +64,7 @@ function force (fx, fy) {
 // var for data received
 stateBuffer = new Buffer(16);
 var start = 0;
-var state;
+var state = [0,0,0,0];
 
 /* END BUFFERS*/
 
@@ -72,7 +72,7 @@ var state;
 /* START TIME VARIABLES */
 
 var renStep = 1/60;
-var simStep = 1/100;
+var simStep = 1/5;
 
 /* END TIME VARIABLEs */
 
@@ -81,6 +81,7 @@ var simStep = 1/100;
 // // Screen Resolution
 // var width = 2048;
 // var height = 1536;
+// var PPI = 11.06;
 
 
 /* START CP VARIABLES*/
@@ -88,19 +89,13 @@ var simStep = 1/100;
 // Screen Resolution
 var width = 1024;
 var height = 768;
+var PPI = 3.21;
 
 // Nodes for screen corners -> topLeft, bottomLeft, bottomRight, topRight
 var bounds = [cp.v(0,0),cp.v(0,height),cp.v(width,height),cp.v(width,0)];
 
-// For layers: collisions only occur if bitwise AND of their layers != 0
-// NOT-GRABABLE-MASK makes walls collide with everything
-var GRABABLE_MASK_BIT = 1<<31;
-var NOT_GRABABLE_MASK = ~GRABABLE_MASK_BIT;
-
 // Current Simulation
 var simulation = null;
-
-var simStep = 1/100;
 
 /* END CP VARIABLES */
 
@@ -124,25 +119,21 @@ function init_simulation_1 () {
 
 	//add floor and ceiling
 	var floor = space.addShape(new cp.SegmentShape(space.staticBody, bounds[1], bounds[2], 0));
-	floor.setElasticity(1);
+	floor.setElasticity(0.5);
 	floor.setFriction(0);
-	floor.setLayers(NOT_GRABABLE_MASK);
 
-	var ceiling = space.addShape(new cp.SegmentShape(space.staticBody, bounds[0], bounds[3]));
-	ceiling.setElasticity(1);
-	ceiling.setFriction(1);
-	ceiling.setLayers(NOT_GRABABLE_MASK);
+	var ceiling = space.addShape(new cp.SegmentShape(space.staticBody, bounds[0], bounds[3], 0));
+	floor.setElasticity(0.5);
+	floor.setFriction(0);
 	  
 	//add walls
 	var wallLeft = space.addShape(new cp.SegmentShape(space.staticBody,bounds[0], bounds[1], 0));
 	wallLeft.setElasticity(1);
 	wallLeft.setFriction(1);
-	wallLeft.setLayers(NOT_GRABABLE_MASK);
 
 	var wallRight = space.addShape(new cp.SegmentShape(space.staticBody, bounds[3], bounds[2], 0));
 	wallRight.setElasticity(1);
 	wallRight.setFriction(1);
-	wallRight.setLayers(NOT_GRABABLE_MASK);
 
 	// add user
 	var mass = 100;
@@ -150,16 +141,13 @@ function init_simulation_1 () {
 	var moment = cp.momentForCircle(mass, 0, radius, cp.v(0, 0));
 	var body = space.addBody(new cp.Body(mass, moment));
 	// Rotated by 90 for now!!!!
-	body.p.y = map(state[1], 87, 200, 0, 1024);
-	body.p.x = map(state[0], -95, 95, 0, 768);
+	body.p.x = map(state[1], 87, 200, 0, 1024);
+	body.p.y = map(state[0], -95, 95, 0, 768);
 	var circle = space.addShape(new cp.CircleShape(body, radius, cp.v(0,0)));
 	circle.setElasticity(1);
 	circle.setFriction(0);
 
-	console.log(space.bodies[0]);
-
-
-	return {'space': space, 'circles': circle};
+	return {'space': space, 'circles': circle, 'bodies': body};
 }
 
 /* END SIMULATION FUNCTIONS */
@@ -236,10 +224,25 @@ serial0.on('open', function () {
 
 		// Loop through simulation at 1/simStep Hz
 		setInterval(function () {
+			
 			// Step by timestep simStep
 			simulation.space.step(simStep);
-			// Array of position data to send to Client
-			var toClient = [simulation.circles.tc.x, simulation.circles.tc.y];
+
+			// Update state
+			simulation.bodies.p.x = map(state[1], 87, 200, 0, 1024);
+			simulation.bodies.p.y = map(state[0], -95, 95, 0, 768);
+			simulation.circles.tc.x = map(state[1], 87, 200, 0, 1024);
+			simulation.circles.tc.y = map(state[0], -95, 95, 0, 768);
+			simulation.bodies.vx = state[3]*PPI;
+			simulation.bodies.vy = state[2]*PPI;
+
+			console.log(simulation.circles.tc.y);
+			// console.log(simulation.circles.body.space.arbiters);			
+
+			if (simulation.circles.body.space.arbiters.length) {
+				console.log(simulation.space.arbiters);
+			}
+		
 		}, simStep);
 
 
@@ -250,7 +253,7 @@ serial0.on('open', function () {
 
 		// Send client position data at
 		setInterval( function () {
-			socket.emit('state', state);
+			socket.emit('state', simulation.circles.tc);
 		}, renStep);
 
 		/* END NODE -> CLIENT DATA TRANSFER */
@@ -273,4 +276,4 @@ serial0.on('open', function () {
 
 });
 
-/* END MAIN 
+/* END MAIN */
