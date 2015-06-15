@@ -61,6 +61,10 @@
         strokeWidth: 20
       });
 
+      socket.emit('ready', function() {
+        console.log('ready');
+      });
+
       socket.on('state', function (pos) {
         // rotated 90!!!!!!!
         // var y = map(state[0], -95, 95, 0, 768);

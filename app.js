@@ -17,13 +17,13 @@ app.use(express.static(__dirname));
 
 
 // Initialize Serial Port Connection
-var SerialPort = serialport.SerialPort;
-var serial0 = new SerialPort("COM10", {baudrate: 115200});
+// var SerialPort = serialport.SerialPort;
+// var serial0 = new SerialPort("COM10", {baudrate: 115200});
 
 // TODO:
-// // Start Serial:
-// var SerialPort = serialport.SerialPort;
-// var serial0 = new SerialPort("/dev/ttymxc3", {baudrate: 115200});
+// Initialize Serial Port Connection
+var SerialPort = serialport.SerialPort;
+var serial0 = new SerialPort("/dev/ttymxc3", {baudrate: 115200});
 
 // TODO:
 // // Create a buffer for forces to be written and the stepper to be driven
@@ -72,24 +72,24 @@ var state = [0,0,0,0];
 /* START TIME VARIABLES */
 
 var renStep = 1/60;
-var simStep = 1/5;
+var simStep = 1/100;
 
 /* END TIME VARIABLEs */
 
 
 // TODO:
-// // Screen Resolution
-// var width = 2048;
-// var height = 1536;
-// var PPI = 11.06;
+// Screen Resolution
+var width = 2048;
+var height = 1536;
+var PPI = 11.06;
 
 
 /* START CP VARIABLES*/
 
-// Screen Resolution
-var width = 1024;
-var height = 768;
-var PPI = 3.21;
+// // Screen Resolution
+// var width = 1024;
+// var height = 768;
+// var PPI = 3.21;
 
 // Nodes for screen corners -> topLeft, bottomLeft, bottomRight, topRight
 var bounds = [cp.v(0,0),cp.v(0,height),cp.v(width,height),cp.v(width,0)];
@@ -110,8 +110,9 @@ function init_simulation_1 () {
 	// Quick test: one static ball, one moving ball 
 
 	var space = new cp.Space();
-	space.iterations = 10;
+	space.iterations = 20;
 	space.gravity = cp.v(0,0);
+	space.damping = 1;
 	space.sleepTimeThreshold = 0.5;
 	space.collisionSlop = 0.5;
 	space.collisionBias = 1;
@@ -128,26 +129,49 @@ function init_simulation_1 () {
 	  
 	//add walls
 	var wallLeft = space.addShape(new cp.SegmentShape(space.staticBody,bounds[0], bounds[1], 0));
-	wallLeft.setElasticity(1);
-	wallLeft.setFriction(1);
+	wallLeft.setElasticity(0.5);
+	wallLeft.setFriction(0);
 
 	var wallRight = space.addShape(new cp.SegmentShape(space.staticBody, bounds[3], bounds[2], 0));
-	wallRight.setElasticity(1);
-	wallRight.setFriction(1);
+	wallRight.setElasticity(0.5);
+	wallRight.setFriction(0);
 
-	// add user
-	var mass = 100;
-	var radius = 60;
-	var moment = cp.momentForCircle(mass, 0, radius, cp.v(0, 0));
-	var body = space.addBody(new cp.Body(mass, moment));
+	// add user body
+	var user_body = space.addBody(new cp.Body(Infinity, Infinity));
 	// Rotated by 90 for now!!!!
-	body.p.x = map(state[1], 87, 200, 0, 1024);
-	body.p.y = map(state[0], -95, 95, 0, 768);
-	var circle = space.addShape(new cp.CircleShape(body, radius, cp.v(0,0)));
-	circle.setElasticity(1);
-	circle.setFriction(0);
+	user_body.setPos(cp.v(200,200));
 
-	return {'space': space, 'circles': circle, 'bodies': body};
+	// add tool body
+	var tool_mass = 100;
+	var tool_radius = 60;
+	var tool_moment = cp.momentForCircle(tool_mass, 0, tool_radius, cp.v(0, 0));
+	var tool_body = space.addBody(new cp.Body(tool_mass, tool_moment));
+	// Rotated by 90 for now!!!!
+	tool_body.setPos(cp.v(200,200));
+
+	// add tool shape
+	var tool_shape = space.addShape(new cp.CircleShape(tool_body, tool_radius, cp.v(0,0)));
+	tool_shape.setElasticity(1);
+	tool_shape.setFriction(0);
+
+	// add coupling for user and virtual tool
+	// var couple = new cp.DampedSpring(user_body, tool_body, cp.v(0,0), cp.v(0,0), 0, 10000, 0);
+	// var spring0 = new cp.DampedSpring(user_body, tool_body, cp.v(0, 0), cp.v(0,60), 0, 1000, 1000);
+	// var spring1 = new cp.DampedSpring(user_body, tool_body, cp.v(0, 0), cp.v(Math.sqrt(10800),-30), 0, 1000, 1000);
+	// var spring2 = new cp.DampedSpring(user_body, tool_body, cp.v(0, 0), cp.v(Math.sqrt(10800),-30), 0, 1000, 1000);
+	var pivot = new cp.PivotJoint(user_body, tool_body, cp.v(0, 0), cp.v(0, 0));
+	// space.addConstraint(spring0);
+	// space.addConstraint(spring1);
+	// space.addConstraint(spring2);
+	// space.addConstraint(couple);
+	space.addConstraint(pivot);
+
+	return	{
+				'space': space,
+				'shapes': [ ,tool_shape], 
+				'bodies': [user_body, tool_body], 
+				'constraints': [pivot]
+			};
 }
 
 /* END SIMULATION FUNCTIONS */
@@ -222,29 +246,38 @@ serial0.on('open', function () {
 		// Initilize simulation_1
 		simulation = init_simulation_1();
 
+		var count = 0;
+
 		// Loop through simulation at 1/simStep Hz
-		setInterval(function () {
-			
-			// Step by timestep simStep
-			simulation.space.step(simStep);
+		setInterval(function () {		
 
 			// Update state
-			simulation.bodies.p.x = map(state[1], 87, 200, 0, 1024);
-			simulation.bodies.p.y = map(state[0], -95, 95, 0, 768);
-			simulation.circles.tc.x = map(state[1], 87, 200, 0, 1024);
-			simulation.circles.tc.y = map(state[0], -95, 95, 0, 768);
-			simulation.bodies.vx = state[3]*PPI;
-			simulation.bodies.vy = state[2]*PPI;
+			// simulation.bodies.p.x = map(state[1], 87, 200, 0, 1024);
+			// simulation.bodies.p.y = map(state[0], -95, 95, 0, 768);
+			// simulation.circles.tc.x = map(state[1], 87, 200, 0, 1024);
+			// simulation.circles.tc.y = map(state[0], -95, 95, 0, 768);
+			// simulation.bodies.vx = state[3]*PPI;
+			// simulation.bodies.vy = state[2]*PPI;
 
-			console.log(simulation.circles.tc.y);
-			// console.log(simulation.circles.body.space.arbiters);			
+			var x = map(state[1], 87, 200, 0, 1024);
+			var y = map(state[0], -95, 95, 0, 768);
+			// var vx = state[3]*PPI;
+			// var vy = state[2]*PPI;
 
-			if (simulation.circles.body.space.arbiters.length) {
-				console.log(simulation.space.arbiters);
+			simulation.bodies[0].setPos(cp.v(x,y));	
+
+			// console.log(simulation.bodies[1].getVel());
+
+			if ((simulation.space.arbiters.length) && (count < 1)) {
+				console.log(simulation.space.constraints[0].f);
+				count++;
 			}
-		
-		}, simStep);
 
+			// Step by timestep simStep
+			simulation.space.step(simStep);
+		
+		}, simStep*1000);
+		// }, 100);
 
 		/* END CP LOOP */
 
@@ -253,7 +286,7 @@ serial0.on('open', function () {
 
 		// Send client position data at
 		setInterval( function () {
-			socket.emit('state', simulation.circles.tc);
+			socket.emit('state', simulation.shapes[1].tc);
 		}, renStep);
 
 		/* END NODE -> CLIENT DATA TRANSFER */
@@ -267,12 +300,12 @@ serial0.on('open', function () {
 
 	// TODO: 
 	// address subject to change
-	// http.listen(3000, '142.157.114.67', function(){
-	//   console.log('listening on 142.157.114.67:3000');
-	// });
-	http.listen(1000, '142.157.36.66', function(){
-	  console.log('listening on 142.157.36.66:1000');
+	http.listen(3000, '142.157.114.94', function(){
+	  console.log('listening on 142.157.114.94:3000');
 	});
+	// http.listen(3000, '142.157.36.19', function(){
+	//   console.log('listening on 142.157.36.19:3000');
+	// });
 
 });
 
