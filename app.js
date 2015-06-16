@@ -304,6 +304,7 @@ serial0.on('open', function () {
 
 		// Send client position data at
 		setInterval( function () {
+			console.log(simulation.bodies);
 			socket.emit('state',[
 									[x,simulation.space.bodies[2].p.x],
 									[y,simulation.space.bodies[2].p.y]
