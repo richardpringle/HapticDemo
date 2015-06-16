@@ -71,7 +71,7 @@ var state = [0,0,0,0];
 
 /* START TIME VARIABLES */
 
-var renStep = 1/60;
+var renStep = 1/30;
 var simStep = 1/250;
 
 /* END TIME VARIABLEs */
@@ -266,12 +266,12 @@ serial0.on('open', function () {
 
 			simulation.bodies[0].setPos(cp.v(x,y));	
 
-			// console.log(simulation.bodies[1].getVel());
+			console.log(simulation.bodies[1].getPos());
 
-			if ((simulation.space.arbiters.length) && (count < 1)) {
-				console.log(simulation.space.constraints[0].f);
-				count++;
-			}
+			// if ((simulation.space.arbiters.length) && (count < 1)) {
+			// 	console.log(simulation.space.constraints[0].f);
+			// 	count++;
+			// }
 
 			// Step by timestep simStep
 			simulation.space.step(simStep);
