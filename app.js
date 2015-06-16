@@ -229,13 +229,88 @@ serial0.on('open', function () {
 					});
 					break;
 				case 1:
-					console.log('click1');
+					serial0.write(buffOut, function(err, data) {
+						console.log('resultsOut ' + data);
+						if (err) {
+							console.error(err);
+						}
+					});
+					serial0.on('data', function(data) {
+
+						// copy 'data' into stateBuffer until full 
+						data.copy(stateBuffer, start);
+						start += data.length;
+
+						// if stateBuffer is full:
+						if (start === 16) {
+							state = 	[
+											stateBuffer.slice(0,4).readFloatLE(),
+											stateBuffer.slice(4,8).readFloatLE(),
+											stateBuffer.slice(8,12).readFloatLE(),
+											stateBuffer.slice(12,16).readFloatLE()
+										];
+
+							// once state[] is populated, reset state to zero
+							start = 0;
+							console.log(state);
+						}
+					});
 					break;
 				case 2:
-					console.log('click2');
+					serial0.write(buffOut, function(err, data) {
+						console.log('resultsOut ' + data);
+						if (err) {
+							console.error(err);
+						}
+					});
+					serial0.on('data', function(data) {
+
+						// copy 'data' into stateBuffer until full 
+						data.copy(stateBuffer, start);
+						start += data.length;
+
+						// if stateBuffer is full:
+						if (start === 16) {
+							state = 	[
+											stateBuffer.slice(0,4).readFloatLE(),
+											stateBuffer.slice(4,8).readFloatLE(),
+											stateBuffer.slice(8,12).readFloatLE(),
+											stateBuffer.slice(12,16).readFloatLE()
+										];
+
+							// once state[] is populated, reset state to zero
+							start = 0;
+							console.log(state);
+						}
+					});
 					break;
 				case 3:
-					console.log('click3');
+					serial0.write(buffOut, function(err, data) {
+						console.log('resultsOut ' + data);
+						if (err) {
+							console.error(err);
+						}
+					});
+					serial0.on('data', function(data) {
+
+						// copy 'data' into stateBuffer until full 
+						data.copy(stateBuffer, start);
+						start += data.length;
+
+						// if stateBuffer is full:
+						if (start === 16) {
+							state = 	[
+											stateBuffer.slice(0,4).readFloatLE(),
+											stateBuffer.slice(4,8).readFloatLE(),
+											stateBuffer.slice(8,12).readFloatLE(),
+											stateBuffer.slice(12,16).readFloatLE()
+										];
+
+							// once state[] is populated, reset state to zero
+							start = 0;
+							console.log(state);
+						}
+					});
 					break;
 			}
 
