@@ -224,7 +224,7 @@ serial0.on('open', function () {
 
 							// once state[] is populated, reset state to zero
 							start = 0;
-							console.log('Data Received for test1');
+							console.log(state);
 						}
 					});
 					break;
