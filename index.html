@@ -67,12 +67,32 @@
         strokeColor: 'DarkGoldenRod',
         strokeWidth: 20
       });
+      
+      var countClicks = 0;
 
       function onMouseDown(event) {
-          console.log('click');
-          topRight.fillColor = 'green';
-          console.log('Color == green', topRight.fillColor.equals('green'));
-          view.draw();
+          switch (countClicks) {
+            case 0:
+              topLeft.fillColor = 'green';
+              view.draw();
+              countClicks++;
+              break;
+            case 1:
+              bottomLeft.fillColor = 'green';
+              view.draw();
+              countClicks++;
+              break;
+            case 2:
+              bottomRight.fillColor = 'green';
+              view.draw();
+              countClicks++;
+              break;
+            case 3:
+              topRight.fillColor = 'green';
+              view.draw();
+              countClicks++;
+              break;
+          }
       }
 
       socket.on('state', function (pos) {
