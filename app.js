@@ -188,7 +188,6 @@ serial0.on('open', function () {
 	// Send Client-Side File
 	app.get('/', function(req, res){
 	  res.sendFile('index.html');
-	  console.log('user requested connection')
 	});
 
 	// Wait for socket.io connection to initialize VE
@@ -288,7 +287,7 @@ serial0.on('open', function () {
 		// Send client position data at
 		setInterval( function () {
 			socket.emit('state', simulation.shapes[1].tc);
-		}, renStep);
+		}, renStep*1000);
 
 		/* END NODE -> CLIENT DATA TRANSFER */
 
