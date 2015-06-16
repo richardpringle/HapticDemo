@@ -79,17 +79,17 @@ var simStep = 1/250;
 
 // TODO:
 // Screen Resolution
-var width = 2048;
-var height = 1536;
-var PPI = 11.06;
+// var width = 2048;
+// var height = 1536;
+// var PPI = 11.06;
 
 
 /* START CP VARIABLES*/
 
-// // Screen Resolution
-// var width = 1024;
-// var height = 768;
-// var PPI = 3.21;
+// Screen Resolution
+var width = 1024;
+var height = 695;
+var PPI = 3.21;
 
 // Nodes for screen corners -> topLeft, bottomLeft, bottomRight, topRight
 var bounds = [cp.v(0,0),cp.v(0,height),cp.v(width,height),cp.v(width,0)];
@@ -285,15 +285,11 @@ serial0.on('open', function () {
 		/* START NODE -> CLIENT DATA TRANSFER */
 
 		// Send client position data at
-		// setInterval( function () {
-		// 	socket.emit('state', simulation.shapes[1].tc);
-		// }, renStep*1000);
+		setInterval( function () {
+			socket.emit('state', simulation.shapes[1].tc);
+		}, renStep*1000);
 
 		/* END NODE -> CLIENT DATA TRANSFER */
-
-		socket.on('view', function (data) {
-			console.log(data);
-		});
 
 
 	  	socket.on('disconnect', function(){
