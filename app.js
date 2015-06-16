@@ -98,6 +98,7 @@ var EE_topLeft = [];
 var EE_bottomRight = [];
 var EE_bottomLeft = [];
 
+var center = [];
 var point_a = [];
 var point_b = [];
 var x, y, theta;
@@ -225,31 +226,19 @@ serial0.on('open', function () {
 			switch (countClicks) {
 
 				case 0:
-					point_a = [state[0], state[1]];
-					console.log(state);
+					center = [state[1], state[0]];
 					break;
 				case 1:
-					point_b = [state[0], state[1]];
-					x = point_b[0] - point_a[0];
-					y = point_b[1] - point_a[1];
-					theta = Math.atan2(y,x);
-					EE_bottomLeft = device2Browser(point_b[0], point_b[1], theta);
-					console.log(state);
-					console.log(EE_bottomLeft);
+					bottomLeft = [state[1], state[0]];
 					break;
 				case 2:
-					EE_bottomRight = device2Browser(state[1], state[2], theta);
-					console.log(state);
-					console.log(EE_bottomRight)
+					bottomRight = [state[1], state[0]];
 					break;
 				case 3:
-					EE_topRight = device2Browser(state[1], state[2], theta);
-					console.log(state);
-					console.log(EE_topRight);
+					topRight = [state[1], state[0]];
 					break;
 				case 4:
-					EE_topRight = device2Browser(state[1], state[2], theta);
-					console.log(EE_topLeft, EE_bottomLeft, EE_bottomRight, EE_topRight);
+					topLeft = [state[1], state[0]];
 					break;
 			}
 
@@ -312,8 +301,8 @@ serial0.on('open', function () {
 
 			if (ready) {
 				// Update state
-				var x = mm2px(state[1], 87, 200, 0, 1024);
-				var y = mm2px(state[0], -95, 95, 0, 768);
+				var x = mm2px(state[1], (center[0] - bottomRight[0]), bottomRight[0], 0, 1024);
+				var y = mm2px(state[0], (center[1] - bottomRight[1]), bottomRight[1], 0, 695);
 				// var vx = state[3]*PPI;
 				// var vy = state[2]*PPI;
 
