@@ -206,27 +206,31 @@ serial0.on('open', function () {
 						if (err) {
 							console.error(err);
 						}
+						data_received = false;
 					});
-					serial0.on('data', function(data) {
+					if (!data_received) {
+						serial0.on('data', function(data) {
 
-						// copy 'data' into stateBuffer until full 
-						data.copy(stateBuffer, start);
-						start += data.length;
+							// copy 'data' into stateBuffer until full 
+							data.copy(stateBuffer, start);
+							start += data.length;
 
-						// if stateBuffer is full:
-						if (start === 16) {
-							state = 	[
-											stateBuffer.slice(0,4).readFloatLE(),
-											stateBuffer.slice(4,8).readFloatLE(),
-											stateBuffer.slice(8,12).readFloatLE(),
-											stateBuffer.slice(12,16).readFloatLE()
-										];
+							// if stateBuffer is full:
+							if (start === 16) {
+								state = 	[
+												stateBuffer.slice(0,4).readFloatLE(),
+												stateBuffer.slice(4,8).readFloatLE(),
+												stateBuffer.slice(8,12).readFloatLE(),
+												stateBuffer.slice(12,16).readFloatLE()
+											];
 
-							// once state[] is populated, reset state to zero
-							start = 0;
-							console.log(state);
-						}
-					});
+								// once state[] is populated, reset state to zero
+								start = 0;
+								data_received = true
+								console.log(state);
+							}
+						});
+					}
 					break;
 				case 1:
 					serial0.write(buffOut, function(err, data) {
@@ -234,27 +238,31 @@ serial0.on('open', function () {
 						if (err) {
 							console.error(err);
 						}
+						data_received = false;
 					});
-					serial0.on('data', function(data) {
+					if (!data_received) {
+						serial0.on('data', function(data) {
 
-						// copy 'data' into stateBuffer until full 
-						data.copy(stateBuffer, start);
-						start += data.length;
+							// copy 'data' into stateBuffer until full 
+							data.copy(stateBuffer, start);
+							start += data.length;
 
-						// if stateBuffer is full:
-						if (start === 16) {
-							state = 	[
-											stateBuffer.slice(0,4).readFloatLE(),
-											stateBuffer.slice(4,8).readFloatLE(),
-											stateBuffer.slice(8,12).readFloatLE(),
-											stateBuffer.slice(12,16).readFloatLE()
-										];
+							// if stateBuffer is full:
+							if (start === 16) {
+								state = 	[
+												stateBuffer.slice(0,4).readFloatLE(),
+												stateBuffer.slice(4,8).readFloatLE(),
+												stateBuffer.slice(8,12).readFloatLE(),
+												stateBuffer.slice(12,16).readFloatLE()
+											];
 
-							// once state[] is populated, reset state to zero
-							start = 0;
-							console.log(state);
-						}
-					});
+								// once state[] is populated, reset state to zero
+								start = 0;
+								data_received = true
+								console.log(state);
+							}
+						});
+					}
 					break;
 				case 2:
 					serial0.write(buffOut, function(err, data) {
@@ -262,27 +270,31 @@ serial0.on('open', function () {
 						if (err) {
 							console.error(err);
 						}
+						data_received = false;
 					});
-					serial0.on('data', function(data) {
+					if (!data_received) {
+						serial0.on('data', function(data) {
 
-						// copy 'data' into stateBuffer until full 
-						data.copy(stateBuffer, start);
-						start += data.length;
+							// copy 'data' into stateBuffer until full 
+							data.copy(stateBuffer, start);
+							start += data.length;
 
-						// if stateBuffer is full:
-						if (start === 16) {
-							state = 	[
-											stateBuffer.slice(0,4).readFloatLE(),
-											stateBuffer.slice(4,8).readFloatLE(),
-											stateBuffer.slice(8,12).readFloatLE(),
-											stateBuffer.slice(12,16).readFloatLE()
-										];
+							// if stateBuffer is full:
+							if (start === 16) {
+								state = 	[
+												stateBuffer.slice(0,4).readFloatLE(),
+												stateBuffer.slice(4,8).readFloatLE(),
+												stateBuffer.slice(8,12).readFloatLE(),
+												stateBuffer.slice(12,16).readFloatLE()
+											];
 
-							// once state[] is populated, reset state to zero
-							start = 0;
-							console.log(state);
-						}
-					});
+								// once state[] is populated, reset state to zero
+								start = 0;
+								data_received = true
+								console.log(state);
+							}
+						});
+					}
 					break;
 				case 3:
 					serial0.write(buffOut, function(err, data) {
@@ -290,27 +302,31 @@ serial0.on('open', function () {
 						if (err) {
 							console.error(err);
 						}
+						data_received = false;
 					});
-					serial0.on('data', function(data) {
+					if (!data_received) {
+						serial0.on('data', function(data) {
 
-						// copy 'data' into stateBuffer until full 
-						data.copy(stateBuffer, start);
-						start += data.length;
+							// copy 'data' into stateBuffer until full 
+							data.copy(stateBuffer, start);
+							start += data.length;
 
-						// if stateBuffer is full:
-						if (start === 16) {
-							state = 	[
-											stateBuffer.slice(0,4).readFloatLE(),
-											stateBuffer.slice(4,8).readFloatLE(),
-											stateBuffer.slice(8,12).readFloatLE(),
-											stateBuffer.slice(12,16).readFloatLE()
-										];
+							// if stateBuffer is full:
+							if (start === 16) {
+								state = 	[
+												stateBuffer.slice(0,4).readFloatLE(),
+												stateBuffer.slice(4,8).readFloatLE(),
+												stateBuffer.slice(8,12).readFloatLE(),
+												stateBuffer.slice(12,16).readFloatLE()
+											];
 
-							// once state[] is populated, reset state to zero
-							start = 0;
-							console.log(state);
-						}
-					});
+								// once state[] is populated, reset state to zero
+								start = 0;
+								data_received = true
+								console.log(state);
+							}
+						});
+					}
 					break;
 			}
 
