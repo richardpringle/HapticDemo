@@ -230,8 +230,11 @@ serial0.on('open', function () {
 				case 1:
 					point_b = [state[1], state[0]];
 					x = point_b[0] - point_a[0];
+					console.log(x);
 					y = point_b[1] - point_a[1];
+					console.log(y);
 					theta = Math.atan2(y,x);
+					console.log(theta);
 					EE_topLeft = device2Browser(point_a[0], point_a[1], theta);
 					EE_bottomLeft = device2Browser(point_b[0], point_b[1], theta);
 					break;
