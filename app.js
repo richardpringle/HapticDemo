@@ -202,7 +202,7 @@ serial0.on('open', function () {
 
 				case 0:
 					serial0.write(buffOut, function(err, data) {
-						console.log('resultsOut ' + data);
+						console.log('resultsOut0 ' + data);
 						if (err) {
 							console.error(err);
 						}
@@ -234,7 +234,7 @@ serial0.on('open', function () {
 					break;
 				case 1:
 					serial0.write(buffOut, function(err, data) {
-						console.log('resultsOut ' + data);
+						console.log('resultsOut1 ' + data);
 						if (err) {
 							console.error(err);
 						}
@@ -266,7 +266,7 @@ serial0.on('open', function () {
 					break;
 				case 2:
 					serial0.write(buffOut, function(err, data) {
-						console.log('resultsOut ' + data);
+						console.log('resultsOut2 ' + data);
 						if (err) {
 							console.error(err);
 						}
@@ -298,7 +298,7 @@ serial0.on('open', function () {
 					break;
 				case 3:
 					serial0.write(buffOut, function(err, data) {
-						console.log('resultsOut ' + data);
+						console.log('resultsOut3 ' + data);
 						if (err) {
 							console.error(err);
 						}
@@ -341,7 +341,7 @@ serial0.on('open', function () {
 
 			// Write buffOut to begin loop
 			serial0.write(buffOut, function(err, data) {
-				console.log('resultsOut ' + data);
+				console.log('resultsOut4 ' + data);
 				if (err) {
 					console.error(err);
 				}
@@ -368,7 +368,7 @@ serial0.on('open', function () {
 
 					// Write to Arduino to continue loop
 					serial0.write(buffOut, function(err, data) {
-						console.log('resultsOut ' + data);
+						console.log('resultsOut5 ' + data);
 						if (err) {
 							console.error(err);
 						}
