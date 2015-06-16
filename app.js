@@ -306,8 +306,8 @@ serial0.on('open', function () {
 		setInterval( function () {
 			console.log(simulation.bodies);
 			socket.emit('state',[
-									[x,simulation.space.bodies[2].p.x],
-									[y,simulation.space.bodies[2].p.y]
+									[x,simulation.bodies[2].p.x],
+									[y,simulation.bodies[2].p.y]
 								]);
 		}, renStep*1000);
 
