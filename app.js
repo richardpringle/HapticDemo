@@ -368,7 +368,6 @@ serial0.on('open', function () {
 
 					// Write to Arduino to continue loop
 					serial0.write(buffOut, function(err, data) {
-						console.log('resultsOut5 ' + data);
 						if (err) {
 							console.error(err);
 						}
@@ -405,7 +404,7 @@ serial0.on('open', function () {
 
 				simulation.bodies[0].setPos(cp.v(x,y));	
 
-				// console.log(simulation.bodies[1].getPos());
+				console.log(simulation.bodies[1].getPos());
 
 				// if ((simulation.space.arbiters.length) && (count < 1)) {
 				// 	console.log(simulation.space.constraints[0].f);
