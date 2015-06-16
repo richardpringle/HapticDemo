@@ -110,7 +110,7 @@ function init_simulation_1 () {
 	// Quick test: one static ball, one moving ball 
 
 	var space = new cp.Space();
-	space.iterations = 20;
+	space.iterations = 15;
 	space.gravity = cp.v(0,0);
 	space.damping = 1;
 	space.sleepTimeThreshold = 0.5;

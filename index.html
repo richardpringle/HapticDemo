@@ -26,19 +26,19 @@
       var socket = io();
 
       var topLeft = new Shape.Circle({
-        center: new Point(0,view.bounds.height/2),
+        center: new Point(view.bounds.width/2,0),
         radius: 60,
         strokeColor: 'red',
         fillColor: 'red'
       });
       var topRight = new Shape.Circle({
-        center: new Point(view.bounds.width, view.bounds.height/2),
+        center: new Point(view.bounds.width, 0),
         radius: 60,
         strokeColor: 'red',
         fillColor: 'red'
       });
       var bottomLeft = new Shape.Circle({
-        center: new Point(0,view.bounds.height),
+        center: new Point(view.bounds.width/2,view.bounds.height),
         radius: 60,
         strokeColor: 'red',
         fillColor: 'red'
