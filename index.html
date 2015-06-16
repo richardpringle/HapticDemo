@@ -26,26 +26,26 @@
       var socket = io();
 
       var topLeft = new Shape.Circle({
-        center: new Point(0,0),
-        radius: 30,
+        center: new Point(0,view.bounds.height/2),
+        radius: 60,
         strokeColor: 'red',
         fillColor: 'red'
       });
       var topRight = new Shape.Circle({
-        center: new Point(view.bounds.width, 0),
-        radius: 30,
+        center: new Point(view.bounds.width, view.bounds.height/2),
+        radius: 60,
         strokeColor: 'red',
         fillColor: 'red'
       });
       var bottomLeft = new Shape.Circle({
         center: new Point(0,view.bounds.height),
-        radius: 30,
+        radius: 60,
         strokeColor: 'red',
         fillColor: 'red'
       });
       var bottomRight = new Shape.Circle({
         center:new Point(view.bounds.width,view.bounds.height),
-        radius: 30,
+        radius: 60,
         strokeColor: 'red',
         fillColor: 'red'
       });
@@ -58,7 +58,7 @@
 
       var user = new Shape.Circle({
         center: view.center,
-        radius: 30,
+        radius: 60,
         strokeColor: 'DarkGoldenRod',
         strokeWidth: 20
       });
