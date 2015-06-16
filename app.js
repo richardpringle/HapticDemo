@@ -98,7 +98,7 @@ var EE_topLeft = [];
 var EE_bottomRight = [];
 var EE_bottomLeft = [];
 var center = [];
-var x_min;
+var x_min, x, y;
 
 // Nodes for screen corners -> topLeft, bottomLeft, bottomRight, topRight
 var bounds = [cp.v(0,0),cp.v(0,height),cp.v(width,height),cp.v(width,0)];
@@ -299,8 +299,8 @@ serial0.on('open', function () {
 
 			if (ready) {
 				// Update state
-				var x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
-				var y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
+				x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
+				y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
 				// var vx = state[3]*PPI;
 				// var vy = state[2]*PPI;
 
@@ -326,7 +326,7 @@ serial0.on('open', function () {
 
 		// Send client position data at
 		setInterval( function () {
-			socket.emit('state', simulation.shapes[1].tc);
+			socket.emit('state', {'x': x,'y': y});
 		}, renStep*1000);
 
 		/* END NODE -> CLIENT DATA TRANSFER */
