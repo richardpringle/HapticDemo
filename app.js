@@ -52,15 +52,16 @@ var ready = false;
 // Create a buffer for forces to be written
 buffx = new Buffer(4);
 buffy = new Buffer(4);
-buffOut = new Buffer(8);
+buffOut = new Buffer(9);
 
 // Create buffers to send to Arduino
-function force (fx, fy) {
+function force (step, fx, fy) {
 	buffx.writeFloatLE(fx);
 	buffy.writeFloatLE(fy);
 	// Concats buffx and buffy into new Buffer bufForce
-	buffx.copy(buffOut, 0);
-	buffy.copy(buffOut, 4);
+	buffOut.writeUInt8(step);
+	buffx.copy(buffOut, 1);
+	buffy.copy(buffOut, 5);
 }
 
 // var for data received
@@ -198,7 +199,7 @@ function init_simulation_1 () {
 serial0.on('open', function () {
 
 	// Initialize force-buffer to zero
-	force(0,0);
+	force(0x00,0,0);
 	
 	// Print serial0 object
 	console.log(serial0); 
