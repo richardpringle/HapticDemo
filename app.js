@@ -113,8 +113,8 @@ var simulation = null;
 /* START SIMULATION FUNCTIONS */
 
 function device2Browser(x, y, theta){
-	var x_prime = Math.cos(theta)*x + Math.sin(theta)*y;
-	var y_prime = Math.cos(theta)*y - Math.sin(theta)*x;
+	var y_prime = Math.cos(theta)*x + Math.sin(theta)*y;
+	var x_prime = Math.cos(theta)*y - Math.sin(theta)*x;
 	return [x_prime, y_prime];
 }
 
@@ -225,15 +225,14 @@ serial0.on('open', function () {
 			switch (countClicks) {
 
 				case 0:
-					point_a = [state[1], state[0]];
+					point_a = [state[0], state[1]];
 					console.log(state);
 					break;
 				case 1:
-					point_b = [state[1], state[0]];
+					point_b = [state[0], state[1]];
 					x = point_b[0] - point_a[0];
 					y = point_b[1] - point_a[1];
 					theta = Math.atan2(y,x);
-					if (theta < 0) {theta += 2*Math.PI}
 					EE_bottomLeft = device2Browser(point_b[0], point_b[1], theta);
 					console.log(state);
 					console.log(EE_bottomLeft);
