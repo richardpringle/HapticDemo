@@ -63,7 +63,9 @@
         strokeWidth: 20
       });
 
-      socket.emit('view', [view.size.width, view.size.height]);
+      var portSize = [view.size.width, view.size.height];
+
+      socket.emit('view', portSize);
 
       socket.on('state', function (pos) {
         // rotated 90!!!!!!!
