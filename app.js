@@ -98,7 +98,9 @@ var EE_topLeft = [];
 var EE_bottomRight = [];
 var EE_bottomLeft = [];
 
-var x_min, x_max, y_min, y_max;
+var point_a = [];
+var point_b = [];
+var x, y, theta;
 
 // Nodes for screen corners -> topLeft, bottomLeft, bottomRight, topRight
 var bounds = [cp.v(0,0),cp.v(0,height),cp.v(width,height),cp.v(width,0)];
@@ -219,13 +221,13 @@ serial0.on('open', function () {
 		});
 
 		socket.on('map', function (countClicks) {
-			var point_a = [];
-			var point_b = [];
-			var x, y, theta;
+
 			switch (countClicks) {
 
 				case 0:
 					point_a = [state[1], state[0]];
+					console.log(point_a);
+					console.log(state);
 					break;
 				case 1:
 					point_b = [state[1], state[0]];
@@ -279,7 +281,7 @@ serial0.on('open', function () {
 				// once state[] is populated, reset state to zero
 				start = 0;
 
-				console.log(state);
+				// console.log(state);
 
 				// Write to Arduino to continue loop
 				serial0.write(buffOut, function(err, data) {
