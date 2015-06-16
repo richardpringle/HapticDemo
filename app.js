@@ -368,6 +368,7 @@ serial0.on('open', function () {
 
 					// Write to Arduino to continue loop
 					serial0.write(buffOut, function(err, data) {
+						console.log('resultsOut ' + data);
 						if (err) {
 							console.error(err);
 						}
