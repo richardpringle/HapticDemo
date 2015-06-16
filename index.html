@@ -69,10 +69,9 @@
       });
 
       function onMouseDown(event) {
-          for (var key in initCircles) {
-            key.strokeColor = 'green';
-            key.fillColor = 'green';
-          }
+          console.log('click');
+          topRight.fillColor = 'green';
+          console.log('Color == green', topRight.fillColor.equals('green'));
           view.draw();
       }
 
