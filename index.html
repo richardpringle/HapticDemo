@@ -25,6 +25,7 @@
     <script type="text/paperscript" canvas="myCanvas">
       var socket = io();
 
+      // 4 initialization circles
       var topLeft = new Shape.Circle({
         center: new Point(view.bounds.width/2,0),
         radius: 60,
@@ -49,12 +50,16 @@
         strokeColor: 'red',
         fillColor: 'red'
       });
-      var wall = new Path({
-        strokeColor: 'red'
-      });
-      var start = new Point(view.center.x,0); 
-      wall.moveTo(start);
-      wall.lineTo(start + [0,768]);
+
+      var initCircles = [topLeft, bottomLeft, bottomRight, topRight];
+
+      // Red moving line
+      // var wall = new Path({
+      //   strokeColor: 'red'
+      // });
+      // var start = new Point(view.center.x,0); 
+      // wall.moveTo(start);
+      // wall.lineTo(start + [0,695]);
 
       var user = new Shape.Circle({
         center: view.center,
@@ -62,6 +67,20 @@
         strokeColor: 'DarkGoldenRod',
         strokeWidth: 20
       });
+
+      function onMouseDown(event) {
+        if (topRight.fillColor == 'red') {
+          for (var key in initCircles) {
+            key.strokeColor = 'green';
+            key.fillColor = 'green';
+          }
+        } else {
+          for (var key in initCircles) {
+            key.strokeColor = 'red';
+            key.fillColor = 'red';
+          }
+        }
+      }
 
       socket.on('state', function (pos) {
         // rotated 90!!!!!!!
@@ -71,9 +90,10 @@
         var y = pos.y;
         user.position = new Point(x,y);
 
-        if ((user.position.x - user.radius - 10) < view.center.x) {
-          wall.position.x = (user.position.x - user.radius -10);
-        }
+        // make the red line move
+        // if ((user.position.x - user.radius - 10) < view.center.x) {
+        //   wall.position.x = (user.position.x - user.radius -10);
+        // }
 
         view.draw();
       });
