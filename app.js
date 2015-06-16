@@ -226,24 +226,29 @@ serial0.on('open', function () {
 
 				case 0:
 					point_a = [state[1], state[0]];
-					console.log(point_a);
 					console.log(state);
 					break;
 				case 1:
 					point_b = [state[1], state[0]];
 					x = point_b[0] - point_a[0];
-					console.log(x);
 					y = point_b[1] - point_a[1];
-					console.log(y);
 					theta = Math.atan2(y,x);
-					console.log(theta);
-					EE_topLeft = device2Browser(point_a[0], point_a[1], theta);
+					if (theta < 0) {theta += 2*Math.PI}
 					EE_bottomLeft = device2Browser(point_b[0], point_b[1], theta);
+					console.log(state);
+					console.log(EE_bottomLeft);
 					break;
 				case 2:
 					EE_bottomRight = device2Browser(state[1], state[2], theta);
+					console.log(state);
+					console.log(EE_bottomRight)
 					break;
 				case 3:
+					EE_topRight = device2Browser(state[1], state[2], theta);
+					console.log(state);
+					console.log(EE_topRight);
+					break;
+				case 4:
 					EE_topRight = device2Browser(state[1], state[2], theta);
 					console.log(EE_topLeft, EE_bottomLeft, EE_bottomRight, EE_topRight);
 					break;

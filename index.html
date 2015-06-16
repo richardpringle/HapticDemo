@@ -27,7 +27,7 @@
 
       // 4 initialization circles
       var topLeft = new Shape.Circle({
-        center: new Point(view.bounds.width/2,0),
+        center: new Point(view.center.x,0),
         radius: 60,
         strokeColor: 'red',
         fillColor: 'red'
@@ -39,13 +39,19 @@
         fillColor: 'red'
       });
       var bottomLeft = new Shape.Circle({
-        center: new Point(view.bounds.width/2,view.bounds.height),
+        center: new Point(view.center.x,view.bounds.height),
         radius: 60,
         strokeColor: 'red',
         fillColor: 'red'
       });
       var bottomRight = new Shape.Circle({
-        center:new Point(view.bounds.width,view.bounds.height),
+        center: new Point(view.bounds.width,view.bounds.height),
+        radius: 60,
+        strokeColor: 'red',
+        fillColor: 'red'
+      });
+      var center = new Shape.Circle({
+        center: view.center,
         radius: 60,
         strokeColor: 'red',
         fillColor: 'red'
@@ -71,11 +77,11 @@
       var countClicks = 0;
 
       function onMouseDown(event) {
-          if (countClicks < 5) {
+          if (countClicks < 6) {
             switch (countClicks) {
               case 0:
-                topLeft.fillColor = 'green';
-                topLeft.strokeColor = 'green';
+                center.fillColor = 'green';
+                center.strokeColor = 'green';
                 view.draw();
                 socket.emit('map', countClicks);
                 countClicks++;
@@ -87,7 +93,7 @@
                 socket.emit('map', countClicks);
                 countClicks++;
                 break;
-              case 2:
+              case 1:
                 bottomRight.fillColor = 'green';
                 bottomRight.strokeColor = 'green';
                 view.draw();
@@ -102,6 +108,14 @@
                 countClicks++;
                 break;
               case 4:
+                topLeft.fillColor = 'green';
+                topLeft.strokeColor = 'green';
+                view.draw();
+                socket.emit('map', countClicks);
+                countClicks++;
+                break;
+              case 5:
+                center.remove();
                 socket.emit('ready');
                 countClicks++;
                 break;
