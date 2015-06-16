@@ -25,6 +25,7 @@ app.use(express.static(__dirname));
 var SerialPort = serialport.SerialPort;
 var serial0 = new SerialPort("/dev/ttymxc3", {baudrate: 115200});
 var data_received = false;
+var ready = false;
 
 // TODO:
 // // Create a buffer for forces to be written and the stepper to be driven
@@ -333,7 +334,10 @@ serial0.on('open', function () {
 		});
 
 		socket.on('ready', function() {
+			ready = true;
+		});
 
+		if (ready) {
 			/* START [NODE <-> ARDUNIO] COMMUNICATION LOOP */
 			
 			// Initialize force-buffer to zero
@@ -429,7 +433,7 @@ serial0.on('open', function () {
 
 			/* END NODE -> CLIENT DATA TRANSFER */
 
-		});
+		}
 
 
 	  	socket.on('disconnect', function(){
