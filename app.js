@@ -188,6 +188,7 @@ serial0.on('open', function () {
 	// Send Client-Side File
 	app.get('/', function(req, res){
 	  res.sendFile('index.html');
+	  console.log('user requested connection')
 	});
 
 	// Wait for socket.io connection to initialize VE
