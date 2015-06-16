@@ -199,7 +199,7 @@ function init_simulation_1 () {
 serial0.on('open', function () {
 
 	// Initialize force-buffer to zero
-	force(0x0A,0,0);
+	force(0x00,0,0);
 	
 	// Print serial0 object
 	console.log(serial0); 
@@ -276,11 +276,11 @@ serial0.on('open', function () {
 				// console.log(state);
 
 				// Write to Arduino to continue loop
-				// serial0.write(buffOut, function(err, data) {
-				// 	if (err) {
-				// 		console.error(err);
-				// 	}
-				// });				
+				serial0.write(buffOut, function(err, data) {
+					if (err) {
+						console.error(err);
+					}
+				});				
 			
 			}
 		});
