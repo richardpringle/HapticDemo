@@ -63,9 +63,7 @@
         strokeWidth: 20
       });
 
-      socket.emit('ready', function() {
-        console.log('ready');
-      });
+      socket.emit('view', [view.size.width, view.size.height]);
 
       socket.on('state', function (pos) {
         // rotated 90!!!!!!!

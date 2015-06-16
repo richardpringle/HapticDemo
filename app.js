@@ -72,7 +72,7 @@ var state = [0,0,0,0];
 /* START TIME VARIABLES */
 
 var renStep = 1/60;
-var simStep = 1/100;
+var simStep = 1/250;
 
 /* END TIME VARIABLEs */
 
@@ -285,11 +285,15 @@ serial0.on('open', function () {
 		/* START NODE -> CLIENT DATA TRANSFER */
 
 		// Send client position data at
-		setInterval( function () {
-			socket.emit('state', simulation.shapes[1].tc);
-		}, renStep*1000);
+		// setInterval( function () {
+		// 	socket.emit('state', simulation.shapes[1].tc);
+		// }, renStep*1000);
 
 		/* END NODE -> CLIENT DATA TRANSFER */
+
+		socket.on('view', function (data) {
+			console.log(data);
+		});
 
 
 	  	socket.on('disconnect', function(){
