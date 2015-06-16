@@ -304,7 +304,10 @@ serial0.on('open', function () {
 
 		// Send client position data at
 		setInterval( function () {
-			socket.emit('state', [[x,space.bodies[2].p.x],[y,space.bodies[2].p.y]]);
+			socket.emit('state',[
+									[x,simulation.space.bodies[2].p.x],
+									[y,simulation.space.bodies[2].p.y]
+								]);
 		}, renStep*1000);
 
 		/* END NODE -> CLIENT DATA TRANSFER */
