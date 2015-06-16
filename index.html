@@ -69,17 +69,11 @@
       });
 
       function onMouseDown(event) {
-        if (topRight.fillColor == 'red') {
           for (var key in initCircles) {
             key.strokeColor = 'green';
             key.fillColor = 'green';
           }
-        } else {
-          for (var key in initCircles) {
-            key.strokeColor = 'red';
-            key.fillColor = 'red';
-          }
-        }
+          view.draw();
       }
 
       socket.on('state', function (pos) {
