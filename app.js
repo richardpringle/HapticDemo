@@ -234,7 +234,6 @@ serial0.on('open', function () {
 				case 3:
 					topRight = [state[1], state[0]];
 					x_min = 2*center[0] - bottomRight[0];
-					console.log(x_min);
 					break;
 				case 4:
 					topLeft = [state[1], state[0]];
@@ -300,7 +299,7 @@ serial0.on('open', function () {
 
 			if (ready) {
 				// Update state
-				var x = mm2px(state[1], (2*center[0] - bottomRight[0]), bottomRight[0], 0, 1024);
+				var x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
 				var y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
 				// var vx = state[3]*PPI;
 				// var vy = state[2]*PPI;
