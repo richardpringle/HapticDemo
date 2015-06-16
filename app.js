@@ -275,7 +275,7 @@ serial0.on('open', function () {
 
 				simulation.bodies[0].setPos(cp.v(x,y));	
 
-				console.log(simulation.bodies[1].getPos());
+				// console.log(simulation.bodies[1].getPos());
 
 				// if ((simulation.space.arbiters.length) && (count < 1)) {
 				// 	console.log(simulation.space.constraints[0].f);
