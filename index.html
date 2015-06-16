@@ -71,27 +71,41 @@
       var countClicks = 0;
 
       function onMouseDown(event) {
-          switch (countClicks) {
-            case 0:
-              topLeft.fillColor = 'green';
-              view.draw();
-              countClicks++;
-              break;
-            case 1:
-              bottomLeft.fillColor = 'green';
-              view.draw();
-              countClicks++;
-              break;
-            case 2:
-              bottomRight.fillColor = 'green';
-              view.draw();
-              countClicks++;
-              break;
-            case 3:
-              topRight.fillColor = 'green';
-              view.draw();
-              countClicks++;
-              break;
+          if (countClicks < 5) {
+            switch (countClicks) {
+              case 0:
+                topLeft.fillColor = 'green';
+                topLeft.strokeColor = 'green';
+                view.draw();
+                socket.emit('map', countClicks);
+                countClicks++;
+                break;
+              case 1:
+                bottomLeft.fillColor = 'green';
+                bottomLeft.strokeColor = 'green';
+                view.draw();
+                socket.emit('map', countClicks);
+                countClicks++;
+                break;
+              case 2:
+                bottomRight.fillColor = 'green';
+                bottomRight.strokeColor = 'green';
+                view.draw();
+                socket.emit('map', countClicks);
+                countClicks++;
+                break;
+              case 3:
+                topRight.fillColor = 'green';
+                topRight.strokeColor = 'green';
+                view.draw();
+                socket.emit('map', countClicks);
+                countClicks++;
+                break;
+              case 4:
+                socket.emit('ready');
+                countClicks++;
+                break;
+            }
           }
       }
 

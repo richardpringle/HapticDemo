@@ -24,6 +24,7 @@ app.use(express.static(__dirname));
 // Initialize Serial Port Connection
 var SerialPort = serialport.SerialPort;
 var serial0 = new SerialPort("/dev/ttymxc3", {baudrate: 115200});
+var data_received = false;
 
 // TODO:
 // // Create a buffer for forces to be written and the stepper to be driven
@@ -195,101 +196,149 @@ serial0.on('open', function () {
 		
 		console.log('a user connected');
 
+		socket.on('map', function (countClicks) {
 
-		/* START [NODE <-> ARDUNIO] COMMUNICATION LOOP */
-		
-		// Initialize force-buffer to zero
-		force(0,0);
+			switch (countClicks) {
 
-		// Write buffOut to begin loop
-		serial0.write(buffOut, function(err, data) {
-			console.log('resultsOut ' + data);
-			if (err) {
-				console.error(err);
+				case 0:
+					serial0.write(buffOut, function(err, data) {
+						console.log('resultsOut ' + data);
+						if (err) {
+							console.error(err);
+						}
+					});
+					serial0.on('data', function(data) {
+
+						// copy 'data' into stateBuffer until full 
+						data.copy(stateBuffer, start);
+						start += data.length;
+
+						// if stateBuffer is full:
+						if (start === 16) {
+							state = 	[
+											stateBuffer.slice(0,4).readFloatLE(),
+											stateBuffer.slice(4,8).readFloatLE(),
+											stateBuffer.slice(8,12).readFloatLE(),
+											stateBuffer.slice(12,16).readFloatLE()
+										];
+
+							// once state[] is populated, reset state to zero
+							start = 0;
+							console.log('Data Received for test1');
+						}
+					});
+					break;
+				case 1:
+					console.log('click1');
+					break;
+				case 2:
+					console.log('click2');
+					break;
+				case 3:
+					console.log('click3');
+					break;
 			}
+
 		});
 
-		// On data receipt, slice data into (float) position and velocity
-		serial0.on('data', function(data) {
+		socket.on('ready', function() {
 
-			// copy 'data' into stateBuffer until full 
-			data.copy(stateBuffer, start);
-			start += data.length;
-
-			// if stateBuffer is full:
-			if (start === 16) {
-				state = 	[
-								stateBuffer.slice(0,4).readFloatLE(),
-								stateBuffer.slice(4,8).readFloatLE(),
-								stateBuffer.slice(8,12).readFloatLE(),
-								stateBuffer.slice(12,16).readFloatLE()
-							];
-
-				// once state[] is populated, reset state to zero
-				start = 0;
-
-				// Write to Arduino to continue loop
-				serial0.write(buffOut, function(err, data) {
-					if (err) {
-						console.error(err);
-					}
-				});				
+			/* START [NODE <-> ARDUNIO] COMMUNICATION LOOP */
 			
-			}
+			// Initialize force-buffer to zero
+			force(0,0);
+
+			// Write buffOut to begin loop
+			serial0.write(buffOut, function(err, data) {
+				console.log('resultsOut ' + data);
+				if (err) {
+					console.error(err);
+				}
+			});
+
+			// On data receipt, slice data into (float) position and velocity
+			serial0.on('data', function(data) {
+
+				// copy 'data' into stateBuffer until full 
+				data.copy(stateBuffer, start);
+				start += data.length;
+
+				// if stateBuffer is full:
+				if (start === 16) {
+					state = 	[
+									stateBuffer.slice(0,4).readFloatLE(),
+									stateBuffer.slice(4,8).readFloatLE(),
+									stateBuffer.slice(8,12).readFloatLE(),
+									stateBuffer.slice(12,16).readFloatLE()
+								];
+
+					// once state[] is populated, reset state to zero
+					start = 0;
+
+					// Write to Arduino to continue loop
+					serial0.write(buffOut, function(err, data) {
+						if (err) {
+							console.error(err);
+						}
+					});				
+				
+				}
+			});
+
+			/* END [NODE <-> ARDUINO] COMMUNICATION LOOP */
+
+
+			/* START CP LOOP */
+
+			// Initilize simulation_1
+			simulation = init_simulation_1();
+
+			var count = 0;
+
+			// Loop through simulation at 1/simStep Hz
+			setInterval(function () {		
+
+				// Update state
+				// simulation.bodies.p.x = map(state[1], 87, 200, 0, 1024);
+				// simulation.bodies.p.y = map(state[0], -95, 95, 0, 768);
+				// simulation.circles.tc.x = map(state[1], 87, 200, 0, 1024);
+				// simulation.circles.tc.y = map(state[0], -95, 95, 0, 768);
+				// simulation.bodies.vx = state[3]*PPI;
+				// simulation.bodies.vy = state[2]*PPI;
+
+				var x = map(state[1], 87, 200, 0, 1024);
+				var y = map(state[0], -95, 95, 0, 768);
+				// var vx = state[3]*PPI;
+				// var vy = state[2]*PPI;
+
+				simulation.bodies[0].setPos(cp.v(x,y));	
+
+				// console.log(simulation.bodies[1].getPos());
+
+				// if ((simulation.space.arbiters.length) && (count < 1)) {
+				// 	console.log(simulation.space.constraints[0].f);
+				// 	count++;
+				// }
+
+				// Step by timestep simStep
+				simulation.space.step(simStep);
+			
+			}, simStep*1000);
+			// }, 100);
+
+			/* END CP LOOP */
+
+
+			/* START NODE -> CLIENT DATA TRANSFER */
+
+			// Send client position data at
+			setInterval( function () {
+				socket.emit('state', simulation.shapes[1].tc);
+			}, renStep*1000);
+
+			/* END NODE -> CLIENT DATA TRANSFER */
+
 		});
-
-		/* END [NODE <-> ARDUINO] COMMUNICATION LOOP */
-
-
-		/* START CP LOOP */
-
-		// Initilize simulation_1
-		simulation = init_simulation_1();
-
-		var count = 0;
-
-		// Loop through simulation at 1/simStep Hz
-		setInterval(function () {		
-
-			// Update state
-			// simulation.bodies.p.x = map(state[1], 87, 200, 0, 1024);
-			// simulation.bodies.p.y = map(state[0], -95, 95, 0, 768);
-			// simulation.circles.tc.x = map(state[1], 87, 200, 0, 1024);
-			// simulation.circles.tc.y = map(state[0], -95, 95, 0, 768);
-			// simulation.bodies.vx = state[3]*PPI;
-			// simulation.bodies.vy = state[2]*PPI;
-
-			var x = map(state[1], 87, 200, 0, 1024);
-			var y = map(state[0], -95, 95, 0, 768);
-			// var vx = state[3]*PPI;
-			// var vy = state[2]*PPI;
-
-			simulation.bodies[0].setPos(cp.v(x,y));	
-
-			console.log(simulation.bodies[1].getPos());
-
-			// if ((simulation.space.arbiters.length) && (count < 1)) {
-			// 	console.log(simulation.space.constraints[0].f);
-			// 	count++;
-			// }
-
-			// Step by timestep simStep
-			simulation.space.step(simStep);
-		
-		}, simStep*1000);
-		// }, 100);
-
-		/* END CP LOOP */
-
-
-		/* START NODE -> CLIENT DATA TRANSFER */
-
-		// Send client position data at
-		setInterval( function () {
-			socket.emit('state', simulation.shapes[1].tc);
-		}, renStep*1000);
-
-		/* END NODE -> CLIENT DATA TRANSFER */
 
 
 	  	socket.on('disconnect', function(){
