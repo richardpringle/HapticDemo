@@ -97,11 +97,8 @@ var EE_topRight = [];
 var EE_topLeft = [];
 var EE_bottomRight = [];
 var EE_bottomLeft = [];
-
 var center = [];
-var point_a = [];
-var point_b = [];
-var x, y, theta;
+var x_min;
 
 // Nodes for screen corners -> topLeft, bottomLeft, bottomRight, topRight
 var bounds = [cp.v(0,0),cp.v(0,height),cp.v(width,height),cp.v(width,0)];
@@ -236,6 +233,8 @@ serial0.on('open', function () {
 					break;
 				case 3:
 					topRight = [state[1], state[0]];
+					x_min = 2*center[0] - bottomRight[0];
+					console.log(x_min);
 					break;
 				case 4:
 					topLeft = [state[1], state[0]];
@@ -301,7 +300,7 @@ serial0.on('open', function () {
 
 			if (ready) {
 				// Update state
-				var x = mm2px(state[1], (center[0] - bottomRight[0]), bottomRight[0], 0, 1024);
+				var x = mm2px(state[1], (2*center[0] - bottomRight[0]), bottomRight[0], 0, 1024);
 				var y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
 				// var vx = state[3]*PPI;
 				// var vy = state[2]*PPI;
