@@ -55,7 +55,7 @@ var state = [0,0,0,0];
 /* START TIME VARIABLES */
 
 var renStep = 1/30;
-var simStep = 1/250;
+var simStep = 1/100;
 
 /* END TIME VARIABLEs */
 
