@@ -295,7 +295,7 @@ serial0.on('open', function () {
 
 		// Send client position data at
 		setInterval( function () {
-			socket.emit('state', {'x': x,'y': y});
+			socket.emit('state', [x,y]);
 		}, renStep*1000);
 
 		/* END NODE -> CLIENT DATA TRANSFER */
