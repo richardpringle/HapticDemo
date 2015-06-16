@@ -286,10 +286,9 @@ serial0.on('open', function () {
 
 				// console.log(simulation.bodies[1].getPos());
 
-				// if ((simulation.space.arbiters.length) && (count < 1)) {
-				// 	console.log(simulation.space.constraints[0].f);
-				// 	count++;
-				// }
+				if (simulation.space.arbiters.length) {
+					console.log(simulation.space.arbiters[0]);
+				}
 
 				// Step by timestep simStep
 				simulation.space.step(simStep);
