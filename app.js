@@ -93,6 +93,13 @@ var width = 1024;
 var height = 695;
 var PPI = 3.21;
 
+var EE_topRight = [];
+var EE_topLeft = [];
+var EE_bottomRight = [];
+var EE_bottomLeft = [];
+
+var x_min, x_max, y_min, y_max;
+
 // Nodes for screen corners -> topLeft, bottomLeft, bottomRight, topRight
 var bounds = [cp.v(0,0),cp.v(0,height),cp.v(width,height),cp.v(width,0)];
 
@@ -103,7 +110,13 @@ var simulation = null;
 
 /* START SIMULATION FUNCTIONS */
 
-function map(x, inMin, inMax, outMin, outMax) {
+function device2Browser(x, y, theta){
+	var x_prime = Math.cos(theta)*x + Math.sin(theta)*y;
+	var y_prime = Math.cos(theta)*y - Math.sin(theta)*x;
+	return [x_prime, y_prime];
+}
+
+function mm2px(x, inMin, inMax, outMin, outMax) {
     return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 }
 
@@ -183,6 +196,9 @@ function init_simulation_1 () {
 
 // Once the serial port is 'open', begin the simulation
 serial0.on('open', function () {
+
+	// Initialize force-buffer to zero
+	force(0,0);
 	
 	// Print serial0 object
 	console.log(serial0); 
@@ -197,212 +213,96 @@ serial0.on('open', function () {
 		
 		console.log('a user connected');
 
-		socket.on('map', function (countClicks) {
+		socket.on('ready', function () {
+			ready = true;
+			console.log('Start the simulation!')
+		});
 
+		socket.on('map', function (countClicks) {
+			var point_a = [];
+			var point_b = [];
+			var x, y, theta;
 			switch (countClicks) {
 
 				case 0:
-					serial0.write(buffOut, function(err, data) {
-						console.log('resultsOut0 ' + data);
-						if (err) {
-							console.error(err);
-						}
-						data_received = false;
-					});
-					if (!data_received) {
-						serial0.on('data', function(data) {
-
-							// copy 'data' into stateBuffer until full 
-							data.copy(stateBuffer, start);
-							start += data.length;
-
-							// if stateBuffer is full:
-							if (start === 16) {
-								state = 	[
-												stateBuffer.slice(0,4).readFloatLE(),
-												stateBuffer.slice(4,8).readFloatLE(),
-												stateBuffer.slice(8,12).readFloatLE(),
-												stateBuffer.slice(12,16).readFloatLE()
-											];
-
-								// once state[] is populated, reset state to zero
-								start = 0;
-								data_received = true
-								console.log(state);
-							}
-						});
-					}
+					point_a = [state[1], state[0]];
 					break;
 				case 1:
-					serial0.write(buffOut, function(err, data) {
-						console.log('resultsOut1 ' + data);
-						if (err) {
-							console.error(err);
-						}
-						data_received = false;
-					});
-					if (!data_received) {
-						serial0.on('data', function(data) {
-
-							// copy 'data' into stateBuffer until full 
-							data.copy(stateBuffer, start);
-							start += data.length;
-
-							// if stateBuffer is full:
-							if (start === 16) {
-								state = 	[
-												stateBuffer.slice(0,4).readFloatLE(),
-												stateBuffer.slice(4,8).readFloatLE(),
-												stateBuffer.slice(8,12).readFloatLE(),
-												stateBuffer.slice(12,16).readFloatLE()
-											];
-
-								// once state[] is populated, reset state to zero
-								start = 0;
-								data_received = true
-								console.log(state);
-							}
-						});
-					}
+					point_b = [state[1], state[0]];
+					x = point_b[0] - point_a[0];
+					y = point_b[1] - point_a[1];
+					theta = Math.atan2(y,x);
+					EE_topLeft = device2Browser(point_a[0], point_a[1], theta);
+					EE_bottomLeft = device2Browser(point_b[0], point_b[1], theta);
 					break;
 				case 2:
-					serial0.write(buffOut, function(err, data) {
-						console.log('resultsOut2 ' + data);
-						if (err) {
-							console.error(err);
-						}
-						data_received = false;
-					});
-					if (!data_received) {
-						serial0.on('data', function(data) {
-
-							// copy 'data' into stateBuffer until full 
-							data.copy(stateBuffer, start);
-							start += data.length;
-
-							// if stateBuffer is full:
-							if (start === 16) {
-								state = 	[
-												stateBuffer.slice(0,4).readFloatLE(),
-												stateBuffer.slice(4,8).readFloatLE(),
-												stateBuffer.slice(8,12).readFloatLE(),
-												stateBuffer.slice(12,16).readFloatLE()
-											];
-
-								// once state[] is populated, reset state to zero
-								start = 0;
-								data_received = true
-								console.log(state);
-							}
-						});
-					}
+					EE_bottomRight = device2Browser(state[1], state[2], theta);
 					break;
 				case 3:
-					serial0.write(buffOut, function(err, data) {
-						console.log('resultsOut3 ' + data);
-						if (err) {
-							console.error(err);
-						}
-						data_received = false;
-					});
-					if (!data_received) {
-						serial0.on('data', function(data) {
-
-							// copy 'data' into stateBuffer until full 
-							data.copy(stateBuffer, start);
-							start += data.length;
-
-							// if stateBuffer is full:
-							if (start === 16) {
-								state = 	[
-												stateBuffer.slice(0,4).readFloatLE(),
-												stateBuffer.slice(4,8).readFloatLE(),
-												stateBuffer.slice(8,12).readFloatLE(),
-												stateBuffer.slice(12,16).readFloatLE()
-											];
-
-								// once state[] is populated, reset state to zero
-								start = 0;
-								data_received = true
-								console.log(state);
-							}
-						});
-					}
+					EE_topRight = device2Browser(state[1], state[2], theta);
+					console.log(EE_topLeft, EE_bottomLeft, EE_bottomRight, EE_topRight);
 					break;
 			}
 
 		});
 
-		socket.on('ready', function() {
-			ready = true;
+
+		/* START [NODE <-> ARDUNIO] COMMUNICATION LOOP */
+
+		// Write buffOut to begin loop
+		serial0.write(buffOut, function(err, data) {
+			console.log('resultsOut4 ' + data);
+			if (err) {
+				console.error(err);
+			}
 		});
 
-		if (ready) {
-			/* START [NODE <-> ARDUNIO] COMMUNICATION LOOP */
+		// On data receipt, slice data into (float) position and velocity
+		serial0.on('data', function(data) {
+
+			// copy 'data' into stateBuffer until full 
+			data.copy(stateBuffer, start);
+			start += data.length;
+
+			// if stateBuffer is full:
+			if (start === 16) {
+				state = 	[
+								stateBuffer.slice(0,4).readFloatLE(),
+								stateBuffer.slice(4,8).readFloatLE(),
+								stateBuffer.slice(8,12).readFloatLE(),
+								stateBuffer.slice(12,16).readFloatLE()
+							];
+
+				// once state[] is populated, reset state to zero
+				start = 0;
+
+				// Write to Arduino to continue loop
+				serial0.write(buffOut, function(err, data) {
+					if (err) {
+						console.error(err);
+					}
+				});				
 			
-			// Initialize force-buffer to zero
-			force(0,0);
+			}
+		});
 
-			// Write buffOut to begin loop
-			serial0.write(buffOut, function(err, data) {
-				console.log('resultsOut4 ' + data);
-				if (err) {
-					console.error(err);
-				}
-			});
-
-			// On data receipt, slice data into (float) position and velocity
-			serial0.on('data', function(data) {
-
-				// copy 'data' into stateBuffer until full 
-				data.copy(stateBuffer, start);
-				start += data.length;
-
-				// if stateBuffer is full:
-				if (start === 16) {
-					state = 	[
-									stateBuffer.slice(0,4).readFloatLE(),
-									stateBuffer.slice(4,8).readFloatLE(),
-									stateBuffer.slice(8,12).readFloatLE(),
-									stateBuffer.slice(12,16).readFloatLE()
-								];
-
-					// once state[] is populated, reset state to zero
-					start = 0;
-
-					// Write to Arduino to continue loop
-					serial0.write(buffOut, function(err, data) {
-						if (err) {
-							console.error(err);
-						}
-					});				
-				
-				}
-			});
-
-			/* END [NODE <-> ARDUINO] COMMUNICATION LOOP */
+		/* END [NODE <-> ARDUINO] COMMUNICATION LOOP */
 
 
-			/* START CP LOOP */
+		/* START CP LOOP */
 
-			// Initilize simulation_1
-			simulation = init_simulation_1();
+		// Initilize simulation_1
+		simulation = init_simulation_1();
 
-			var count = 0;
+		var count = 0;
 
-			// Loop through simulation at 1/simStep Hz
-			setInterval(function () {		
+		// Loop through simulation at 1/simStep Hz
+		setInterval(function () {	
 
+			if (ready) {
 				// Update state
-				// simulation.bodies.p.x = map(state[1], 87, 200, 0, 1024);
-				// simulation.bodies.p.y = map(state[0], -95, 95, 0, 768);
-				// simulation.circles.tc.x = map(state[1], 87, 200, 0, 1024);
-				// simulation.circles.tc.y = map(state[0], -95, 95, 0, 768);
-				// simulation.bodies.vx = state[3]*PPI;
-				// simulation.bodies.vy = state[2]*PPI;
-
-				var x = map(state[1], 87, 200, 0, 1024);
-				var y = map(state[0], -95, 95, 0, 768);
+				var x = mm2px(state[1], 87, 200, 0, 1024);
+				var y = mm2px(state[0], -95, 95, 0, 768);
 				// var vx = state[3]*PPI;
 				// var vy = state[2]*PPI;
 
@@ -417,23 +317,21 @@ serial0.on('open', function () {
 
 				// Step by timestep simStep
 				simulation.space.step(simStep);
-			
-			}, simStep*1000);
-			// }, 100);
+			}
+		
+		}, simStep*1000);
 
-			/* END CP LOOP */
+		/* END CP LOOP */
 
 
-			/* START NODE -> CLIENT DATA TRANSFER */
+		/* START NODE -> CLIENT DATA TRANSFER */
 
-			// Send client position data at
-			setInterval( function () {
-				socket.emit('state', simulation.shapes[1].tc);
-			}, renStep*1000);
+		// Send client position data at
+		setInterval( function () {
+			socket.emit('state', simulation.shapes[1].tc);
+		}, renStep*1000);
 
-			/* END NODE -> CLIENT DATA TRANSFER */
-
-		}
+		/* END NODE -> CLIENT DATA TRANSFER */
 
 
 	  	socket.on('disconnect', function(){
