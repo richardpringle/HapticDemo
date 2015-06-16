@@ -137,6 +137,15 @@ function init_simulation_1 () {
 	tool_shape.setElasticity(1);
 	tool_shape.setFriction(0);
 
+	// add ball body
+	var ball_mass = 40;
+	var ball_radius = 40;
+	var ball_moment = cp.momentForCircle(ball_mass, 0, ball_radius, cp.v(0,0));
+	var ball_body = space.addBody(new cp.Body(ball_mass, ball_moment));
+	ball_body.setPos(cp.v(500, 100));
+	var ball_shape = space.addShape(new cp.CircleShape(ball_body, ball_radius, cp.v(0,0)));
+	ball_shape.setElasticity(0.5);
+
 	// add coupling for user and virtual tool
 	// var couple = new cp.DampedSpring(user_body, tool_body, cp.v(0,0), cp.v(0,0), 0, 10000, 0);
 	// var spring0 = new cp.DampedSpring(user_body, tool_body, cp.v(0, 0), cp.v(0,60), 0, 1000, 1000);
@@ -151,8 +160,8 @@ function init_simulation_1 () {
 
 	return	{
 				'space': space,
-				'shapes': [ ,tool_shape], 
-				'bodies': [user_body, tool_body], 
+				'shapes': [ ,tool_shape, ball_shape], 
+				'bodies': [user_body, tool_body, ball_body], 
 				'constraints': [pivot]
 			};
 }
@@ -295,7 +304,7 @@ serial0.on('open', function () {
 
 		// Send client position data at
 		setInterval( function () {
-			socket.emit('state', [x,y]);
+			socket.emit('state', [[x,space.bodies[2].p.x],[y,space.bodies[2].p.y]]);
 		}, renStep*1000);
 
 		/* END NODE -> CLIENT DATA TRANSFER */

@@ -25,6 +25,9 @@
     <script type="text/paperscript" canvas="myCanvas">
       var socket = io();
 
+      var x = [];
+      var y = [];
+
       // 4 initialization circles
       var topLeft = new Shape.Circle({
         center: new Point(view.center.x,0),
@@ -126,11 +129,9 @@
                 topRight.remove();
                 bottomLeft.remove();
                 bottomRight.remove();
+                ball.position = new Point(500, 100);
                 socket.emit('ready');
                 countClicks++;
-                break;
-              case 6: 
-
                 break;
             }
           }
@@ -140,9 +141,12 @@
         // rotated 90!!!!!!!
         // var y = map(state[0], -95, 95, 0, 768);
         // var x = map(state[1], 87, 200, 0, 1024);
-        var x = pos[0];
-        var y = pos[1];
-        user.position = new Point(x,y);
+        x[0] = pos[0][0];
+        y[0] = pos[1][0];
+        x[1] = pos[0][1];
+        y[1] = pos[1][1];
+        user.position = new Point(x[0],y[0]);
+        ball.position = new Point(x[1],y[1]);
 
         // make the red line move
         // if ((user.position.x - user.radius - 10) < view.center.x) {
