@@ -56,6 +56,12 @@
         strokeColor: 'red',
         fillColor: 'red'
       });
+      var ball = new Shape.Circle({
+        center: new Point(-100, -100),
+        radius: 40,
+        strokeColor: 'orange',
+        fillColor: 'orange'
+      });
 
       var initCircles = [topLeft, bottomLeft, bottomRight, topRight];
 
@@ -122,6 +128,9 @@
                 bottomRight.remove();
                 socket.emit('ready');
                 countClicks++;
+                break;
+              case 6: 
+
                 break;
             }
           }
