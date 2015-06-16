@@ -27,26 +27,6 @@ var serial0 = new SerialPort("/dev/ttymxc3", {baudrate: 115200});
 var data_received = false;
 var ready = false;
 
-// TODO:
-// // Create a buffer for forces to be written and the stepper to be driven
-// buffStep = new Buffer(1);
-// buffx = new Buffer(4);
-// buffy = new Buffer(4);
-// buffOut = new Buffer(8);
-
-// // Create buffers to send to Arduino
-// // step: 0x00 for no step, 0x0F for open, 0x0B for close
-// function force (step, fx, fy) {
-// 	buffStep.writeUInt8(step);
-// 	buffx.writeFloatLE(fx);
-// 	buffy.writeFloatLE(fy);
-// 	// Concats buffx and buffy into new Buffer bufForce
-// 	buffStep.copy(buffOut, 0);
-// 	buffx.copy(buffOut, 1);
-// 	buffy.copy(buffOut, 5);
-// }
-
-
 /* START BUFFERS */
 
 // Create a buffer for forces to be written
@@ -80,13 +60,6 @@ var simStep = 1/250;
 /* END TIME VARIABLEs */
 
 
-// TODO:
-// Screen Resolution
-// var width = 2048;
-// var height = 1536;
-// var PPI = 11.06;
-
-
 /* START CP VARIABLES*/
 
 // Screen Resolution
@@ -110,12 +83,6 @@ var simulation = null;
 /* END CP VARIABLES */
 
 /* START SIMULATION FUNCTIONS */
-
-function device2Browser(x, y, theta){
-	var y_prime = Math.cos(theta)*x + Math.sin(theta)*y;
-	var x_prime = Math.cos(theta)*y - Math.sin(theta)*x;
-	return [x_prime, y_prime];
-}
 
 function mm2px(x, inMin, inMax, outMin, outMax) {
     return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
@@ -225,6 +192,7 @@ serial0.on('open', function () {
 
 				case 0:
 					center = [state[1], state[0]];
+					console.log(center);
 					break;
 				case 1:
 					bottomLeft = [state[1], state[0]];
