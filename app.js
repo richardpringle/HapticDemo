@@ -147,6 +147,7 @@ function init_simulation_1 () {
 	var tool_shape = space.addShape(new cp.CircleShape(tool_body, tool_radius, cp.v(0,0)));
 	tool_shape.setElasticity(1);
 	tool_shape.setFriction(0);
+	tool_shape.setLayers(NOT_GRABABLE_MASK);
 
 	// add ball body
 	var ball_mass = 40;
@@ -308,7 +309,7 @@ serial0.on('open', function () {
 				// 	force(0x00, 0, 0);
 				// }
 
-				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 100, NOT_GRABABLE_MASK, cp.NO_GROUP);
+				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 100, GRABABLE_MASK, cp.NO_GROUP);
 				if (info) {
 					console.log(info.d);
 				}
