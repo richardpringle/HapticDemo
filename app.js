@@ -288,7 +288,7 @@ serial0.on('open', function () {
 					// if (simulation.space.arbiters.length && (x < 600)) {
 					// 	console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
 					// }
-					console.log(simulation.bodies[2].getPos());
+					console.log(simulation.shapes[2].tc);
 					// simStep = Date.now() - time;
 					// time = Date.now(); 
 					// Step by timestep simStep
