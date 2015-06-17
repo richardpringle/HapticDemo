@@ -67,11 +67,11 @@ var width = 1024;
 var height = 695;
 var PPI = 3.21;
 
-var EE_topRight = [0,0];
-var EE_topLeft = [0,0];
-var EE_bottomRight = [0,0];
-var EE_bottomLeft = [0,0];
-var center = [0,0];
+var EE_topRight = [];
+var EE_topLeft = [];
+var EE_bottomRight = [];
+var EE_bottomLeft = [];
+var center = [];
 var x_min, x, y;
 
 // Nodes for screen corners -> topLeft, bottomLeft, bottomRight, topRight
@@ -250,10 +250,6 @@ serial0.on('open', function () {
 				// once state[] is populated, reset state to zero
 				start = 0;
 
-				// Update state
-				x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
-				y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
-
 				// console.log(state);
 
 				// Write to Arduino to continue loop
@@ -280,6 +276,10 @@ serial0.on('open', function () {
 		setInterval(function () {	
 
 			if (ready) {
+
+				// Update state
+				x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
+				y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
 				// var vx = state[3]*PPI;
 				// var vy = state[2]*PPI;
 
