@@ -86,6 +86,8 @@ var NOT_GRABABLE_MASK = ~GRABABLE_MASK_BIT;
 // Current Simulation
 var simulation = null;
 var info;
+var normal;
+var r;
 
 /* END CP VARIABLES */
 
@@ -310,8 +312,10 @@ serial0.on('open', function () {
 				// }
 
 				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);
+				r = info.d;
+				normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
 				if (info && (!count)) {
-					console.log(info);
+					console.log(normal);
 					count++;
 				}
 				
