@@ -260,20 +260,10 @@ serial0.on('open', function () {
 				});				
 			
 			}
-		});
-
-		/* END [NODE <-> ARDUINO] COMMUNICATION LOOP */
+		
 
 
-		/* START CP LOOP */
-
-		// Initilize simulation_1
-		simulation = init_simulation_1();
-
-		var count = 0;
-
-		// Loop through simulation at 1/simStep Hz
-		setInterval(function () {	
+/* This is a test to see if I should run the simulation loop within the arduino loop */
 
 			if (ready) {
 
@@ -298,8 +288,52 @@ serial0.on('open', function () {
 				// Step by timestep simStep
 				simulation.space.step(simStep);
 			}
+
+
+
+
+
+
+		});
+
+		/* END [NODE <-> ARDUINO] COMMUNICATION LOOP */
+
+
+		/* START CP LOOP */
+
+		// Initilize simulation_1
+		simulation = init_simulation_1();
+
+		var count = 0;
+
+		// Loop through simulation at 1/simStep Hz
+		// setInterval(function () {	
+
+		// 	if (ready) {
+
+		// 		// Update state
+		// 		x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
+		// 		y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
+		// 		// var vx = state[3]*PPI;
+		// 		// var vy = state[2]*PPI;
+
+		// 		simulation.bodies[0].setPos(cp.v(x,y));	
+
+		// 		if (x > 600) {
+		// 			force(0x00, 0, -75000);
+		// 		} else {
+		// 			force(0x00, 0, 0);
+		// 		}
+
+		// 		// if (simulation.space.arbiters.length && (x < 600)) {
+		// 		// 	console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
+		// 		// }
+
+		// 		// Step by timestep simStep
+		// 		simulation.space.step(simStep);
+		// 	}
 		
-		}, simStep*1000);
+		// }, simStep*1000);
 
 		/* END CP LOOP */
 
