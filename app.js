@@ -250,7 +250,7 @@ serial0.on('open', function () {
 				// once state[] is populated, reset state to zero
 				start = 0;
 
-				console.log(state);
+				// console.log(state);
 
 				// Write to Arduino to continue loop
 				serial0.write(buffOut, function(err, data) {
@@ -286,7 +286,7 @@ serial0.on('open', function () {
 				simulation.bodies[0].setPos(cp.v(x,y));	
 
 				if (x > 600) {
-					// force(0x00, 0, -75000);
+					force(0x00, 0, -75000);
 				} else {
 					force(0x00, 0, 0);
 				}
