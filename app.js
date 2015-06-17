@@ -306,11 +306,10 @@ serial0.on('open', function () {
 				// } else {
 				// 	force(0x00, 0, 0);
 				// }
-				if (count < 5) {
-					console.log(simulation.space.nearestPointQueryNearest(cp.v(x,y), 100, NOT_GRABABLE_MASK, cp.NO_GROUP));
-					count++
-				}
-
+					
+				console.log(simulation.space.nearestPointQueryNearest(cp.v(x,y), 100, NOT_GRABABLE_MASK, cp.NO_GROUP).d);
+				
+				
 				// Step by timestep simStep
 				simulation.space.step(simStep);
 
