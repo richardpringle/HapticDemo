@@ -80,6 +80,8 @@ var x_min, x, y;
 
 // Nodes for screen corners -> topLeft, bottomLeft, bottomRight, topRight
 var bounds = [cp.v(0,0),cp.v(0,height),cp.v(width,height),cp.v(width,0)];
+var GRABABLE_MASK_BIT = 1<<31;
+var NOT_GRABABLE_MASK = ~GRABABLE_MASK_BIT;
 
 // Current Simulation
 var simulation = null;
@@ -109,19 +111,23 @@ function init_simulation_1 () {
 	var floor = space.addShape(new cp.SegmentShape(space.staticBody, bounds[1], bounds[2], 0));
 	floor.setElasticity(0.5);
 	floor.setFriction(0);
+	floor.setLayers(NOT_GRABABLE_MASK);
 
 	var ceiling = space.addShape(new cp.SegmentShape(space.staticBody, bounds[0], bounds[3], 0));
 	floor.setElasticity(0.5);
 	floor.setFriction(0);
+	floor.setLayers(NOT_GRABABLE_MASK);
 	  
 	//add walls
 	var wallLeft = space.addShape(new cp.SegmentShape(space.staticBody,bounds[0], bounds[1], 0));
 	wallLeft.setElasticity(0.5);
 	wallLeft.setFriction(0);
+	floor.setLayers(NOT_GRABABLE_MASK);
 
 	var wallRight = space.addShape(new cp.SegmentShape(space.staticBody, bounds[3], bounds[2], 0));
 	wallRight.setElasticity(0.5);
 	wallRight.setFriction(0);
+	floor.setLayers(NOT_GRABABLE_MASK);
 
 	// add user body
 	var user_body = space.addBody(new cp.Body(Infinity, Infinity));
@@ -294,21 +300,20 @@ serial0.on('open', function () {
 
 				simulation.bodies[0].setPos(cp.v(x,y));	
 
-				// if (x > 600) {
-				// 	force(0x00, 0, -50000);
+				// if (simulation.space.arbiters.length) {
+				// 	console.log(simulation.space.arbiters[0].totalImpulse().x);
+				// 	force(0x00, 0, simulation.space.arbiters[0].totalImpulse().x);
 				// } else {
 				// 	force(0x00, 0, 0);
 				// }
-
-				if (simulation.space.arbiters.length) {
-					console.log(simulation.space.arbiters[0].totalImpulse().x);
-					force(0x00, 0, simulation.space.arbiters[0].totalImpulse().x);
-				} else {
-					force(0x00, 0, 0);
+				if (count < 5) {
+					console.log(simulation.space.nearestPointQueryNearest(cp.v(x,y), 100, NOT_GRABABLE_MASK, cp.NO_GROUP));
+					count++
 				}
 
 				// Step by timestep simStep
 				simulation.space.step(simStep);
+
 			} else {
 				force(0x00, 0, 0);
 			}
