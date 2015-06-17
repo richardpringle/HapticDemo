@@ -260,7 +260,7 @@ serial0.on('open', function () {
 				// once state[] is populated, reset state to zero
 				start = 0;
 
-				console.log(buffOut);
+				// console.log(buffOut);
 
 				// Write to Arduino to continue loop
 				// serial0.write(buffOut, function(err, data) {
