@@ -286,7 +286,7 @@ serial0.on('open', function () {
 				simulation.bodies[0].setPos(cp.v(x,y));	
 
 				if (x > 600) {
-					force(0x00, 0, -10000);
+					force(0x00, 0, -100000);
 				} else {
 					force(0x00, 0, 0);
 				}
