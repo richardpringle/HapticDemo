@@ -67,11 +67,11 @@ var width = 1024;
 var height = 695;
 var PPI = 3.21;
 
-var EE_topRight = [];
-var EE_topLeft = [];
-var EE_bottomRight = [];
-var EE_bottomLeft = [];
-var center = [];
+var EE_topRight = [0,0];
+var EE_topLeft = [0,0];
+var EE_bottomRight = [0,0];
+var EE_bottomLeft = [0,0];
+var center = [0,0];
 var x_min, x, y;
 
 // Nodes for screen corners -> topLeft, bottomLeft, bottomRight, topRight
