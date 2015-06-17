@@ -314,10 +314,10 @@ serial0.on('open', function () {
 				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);
 				if (info) {r = info.d;}
 				normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
-				if (info && (!count)) {
+				// if (info && (!count)) {
 					console.log(normal);
-					count++;
-				}
+				// 	count++;
+				// }
 				
 				
 				// Step by timestep simStep
