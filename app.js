@@ -280,10 +280,8 @@ serial0.on('open', function () {
 					simulation.bodies[0].setPos(cp.v(x,y));	
 
 					if (x > 600) {
-						console.log(1);
-						force(0x00, 0, 0);
+						force(0x00, 0, -50000);
 					} else {
-						console.log(0);
 						force(0x00, 0, 0);
 					}
 
@@ -291,8 +289,8 @@ serial0.on('open', function () {
 					// 	console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
 					// }
 					console.log(simulation.bodies[0].getPos());
-					simStep = Date.now() - time;
-					time = Date.now(); 
+					// simStep = Date.now() - time;
+					// time = Date.now(); 
 					// Step by timestep simStep
 					simulation.space.step(3);
 				}
