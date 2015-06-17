@@ -250,6 +250,12 @@ serial0.on('open', function () {
 				// once state[] is populated, reset state to zero
 				start = 0;
 
+				// Update state
+				if (ready) {
+					x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
+					y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
+				}
+
 				// console.log(state);
 
 				// Write to Arduino to continue loop
@@ -276,9 +282,6 @@ serial0.on('open', function () {
 		setInterval(function () {	
 
 			if (ready) {
-				// Update state
-				x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
-				y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
 				// var vx = state[3]*PPI;
 				// var vy = state[2]*PPI;
 
@@ -286,7 +289,7 @@ serial0.on('open', function () {
 
 				// console.log(simulation.bodies[1].getPos());
 
-				if (simulation.space.arbiters.length) {
+				if (simulation.space.arbiters.length && ) {
 					console.log(simulation.space.arbiters[0].contacts);
 				}
 
