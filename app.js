@@ -85,6 +85,7 @@ var NOT_GRABABLE_MASK = ~GRABABLE_MASK_BIT;
 
 // Current Simulation
 var simulation = null;
+var info;
 
 /* END CP VARIABLES */
 
@@ -306,8 +307,9 @@ serial0.on('open', function () {
 				// } else {
 				// 	force(0x00, 0, 0);
 				// }
-					
-				console.log(simulation.space.nearestPointQueryNearest(cp.v(x,y), 100, NOT_GRABABLE_MASK, cp.NO_GROUP).d);
+
+				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 100, NOT_GRABABLE_MASK, cp.NO_GROUP);
+				console.log(info.d);
 				
 				
 				// Step by timestep simStep
