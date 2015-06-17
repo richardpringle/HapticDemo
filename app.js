@@ -1,3 +1,4 @@
+
  /* START REQUIREMENTS */
 
 var express = require('express');
@@ -56,7 +57,6 @@ var state = [0,0,0,0];
 
 var renStep = 1/30;
 var simStep = 1/100;
-var time = Date.now();
 
 /* END TIME VARIABLEs */
 
@@ -221,9 +221,6 @@ serial0.on('open', function () {
 
 		});
 
-		// Initilize simulation_1
-		simulation = init_simulation_1();
-
 
 		/* START [NODE <-> ARDUNIO] COMMUNICATION LOOP */
 
@@ -261,44 +258,9 @@ serial0.on('open', function () {
 					if (err) {
 						console.error(err);
 					}
-				});	
-
-
-
-
-
-/* This is a test to see if I should run the simulation loop within the arduino loop */
-
-				if (ready) {
-
-					// Update state
-					x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
-					y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
-					// var vx = state[3]*PPI;
-					// var vy = state[2]*PPI;
-
-					simulation.bodies[0].setPos(cp.v(x,y));	
-
-					if (x > 600) {
-						force(0x00, 0, -50000);
-					} else {
-						force(0x00, 0, 0);
-					}
-
-					// if (simulation.space.arbiters.length && (x < 600)) {
-					// 	console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
-					// }
-					console.log(simulation.bodies[0].getPos(), simulation.bodies[1].getPos());
-					// simStep = Date.now() - time;
-					// time = Date.now(); 
-					// Step by timestep simStep
-					simulation.space.step(3);
-				}
-
-
+				});				
 			
 			}
-		
 		});
 
 		/* END [NODE <-> ARDUINO] COMMUNICATION LOOP */
@@ -306,42 +268,39 @@ serial0.on('open', function () {
 
 		/* START CP LOOP */
 
+		// Initilize simulation_1
+		simulation = init_simulation_1();
+
+		var count = 0;
+
 		// Loop through simulation at 1/simStep Hz
-		// setInterval(function () {	
+		setInterval(function () {	
 
-		// 	if (ready) {
+			if (ready) {
 
-		// 		// Update state
-		// 		x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
-		// 		y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
-		// 		// var vx = state[3]*PPI;
-		// 		// var vy = state[2]*PPI;
+				// Update state
+				x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
+				y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
+				// var vx = state[3]*PPI;
+				// var vy = state[2]*PPI;
 
-		// 		simulation.bodies[0].setPos(cp.v(x,y));	
+				simulation.bodies[0].setPos(cp.v(x,y));	
 
-<<<<<<< HEAD
-		// 		if (x > 600) {
-		// 			force(0x00, 0, -75000);
-		// 		} else {
-		// 			force(0x00, 0, 0);
-		// 		}
-=======
 				if (x > 600) {
 					force(0x00, 0, 1000);
 				} else {
 					force(0x00, 0, 0);
 				}
->>>>>>> parent of 16239b4... See what kind of force magnitudes I can pass to the arduino
 
-		// 		// if (simulation.space.arbiters.length && (x < 600)) {
-		// 		// 	console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
-		// 		// }
+				// if (simulation.space.arbiters.length && (x < 600)) {
+				// 	console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
+				// }
 
-		// 		// Step by timestep simStep
-		// 		simulation.space.step(simStep);
-		// 	}
+				// Step by timestep simStep
+				simulation.space.step(simStep);
+			}
 		
-		// }, simStep*1000);
+		}, simStep*1000);
 
 		/* END CP LOOP */
 
@@ -361,7 +320,6 @@ serial0.on('open', function () {
 
 	  	socket.on('disconnect', function(){
 	    	console.log('user disconnected');
-	    	ready = false;
 	  	});
 
 	});
