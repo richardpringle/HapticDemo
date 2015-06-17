@@ -309,9 +309,10 @@ serial0.on('open', function () {
 				// 	force(0x00, 0, 0);
 				// }
 
-				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 100, GRABABLE_MASK_BIT, cp.NO_GROUP);
-				if (info) {
-					console.log(info.d);
+				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);
+				if (info && (!count)) {
+					console.log(info);
+					count++;
 				}
 				
 				
