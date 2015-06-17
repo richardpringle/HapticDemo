@@ -55,7 +55,7 @@ var state = [0,0,0,0];
 
 /* START TIME VARIABLES */
 
-var renStep = 1/30;
+var renStep = 1/60;
 var simStep = 1/100;
 
 /* END TIME VARIABLEs */
@@ -294,8 +294,10 @@ serial0.on('open', function () {
 
 				if (simulation.space.arbiters.length && (x < 600) && !count) {
 					console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
-					force(0x00, 0, simulation.space.arbiters[0].totalImpulse().y);
+					force(0x00, 0, simulation.space.arbiters[0].totalImpulse().x);
 					count++;
+				} else {
+					force(0x00, 0, 0);
 				}
 
 				// Step by timestep simStep
