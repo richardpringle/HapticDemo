@@ -309,7 +309,9 @@ serial0.on('open', function () {
 				// }
 
 				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 100, NOT_GRABABLE_MASK, cp.NO_GROUP);
-				console.log(info.d);
+				if (info) {
+					console.log(info.d);
+				}
 				
 				
 				// Step by timestep simStep
