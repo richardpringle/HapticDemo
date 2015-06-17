@@ -286,15 +286,15 @@ serial0.on('open', function () {
 
 				simulation.bodies[0].setPos(cp.v(x,y));	
 
-				if (x > 600) {
-					force(0x00, 0, -50000);
-				} else {
-					force(0x00, 0, 0);
-				}
-
-				// if (simulation.space.arbiters.length && (x < 600)) {
-				// 	console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
+				// if (x > 600) {
+				// 	force(0x00, 0, -50000);
+				// } else {
+				// 	force(0x00, 0, 0);
 				// }
+
+				if (simulation.space.arbiters.length && (x < 600)) {
+					console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
+				}
 
 				// Step by timestep simStep
 				simulation.space.step(simStep);
@@ -320,6 +320,7 @@ serial0.on('open', function () {
 
 	  	socket.on('disconnect', function(){
 	    	console.log('user disconnected');
+	    	ready = false;
 	  	});
 
 	});
