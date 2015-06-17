@@ -290,7 +290,7 @@ serial0.on('open', function () {
 				// console.log(simulation.bodies[1].getPos());
 
 				if (simulation.space.arbiters.length && (x < 600)) {
-					console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc);
+					console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
 				}
 
 				// Step by timestep simStep
