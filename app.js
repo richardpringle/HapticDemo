@@ -251,7 +251,7 @@ serial0.on('open', function () {
 				// once state[] is populated, reset state to zero
 				start = 0;
 
-				console.log(buffOut);
+				// console.log(buffOut);
 
 				// Write to Arduino to continue loop
 				serial0.write(buffOut, function(err, data) {
@@ -292,8 +292,9 @@ serial0.on('open', function () {
 				// 	force(0x00, 0, 0);
 				// }
 
-				if (simulation.space.arbiters.length && (x < 600)) {
+				if (simulation.space.arbiters.length && (x < 600) && !count) {
 					console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
+					count++;
 				}
 
 				// Step by timestep simStep
