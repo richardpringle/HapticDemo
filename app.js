@@ -287,7 +287,7 @@ serial0.on('open', function () {
 				// console.log(simulation.bodies[1].getPos());
 
 				if (simulation.space.arbiters.length) {
-					console.log(simulation.space.arbiters[0].totalImpulse());
+					console.log(simulation.space.arbiters[0].contacts);
 				}
 
 				// Step by timestep simStep
