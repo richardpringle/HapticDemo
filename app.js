@@ -88,6 +88,7 @@ var simulation = null;
 var info;
 var normal;
 var r;
+var f;
 
 /* END CP VARIABLES */
 
@@ -312,13 +313,18 @@ serial0.on('open', function () {
 				// }
 
 				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);
-				if (info) {r = info.d;}
-				normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
-				// if (info && (!count)) {
-					console.log(normal);
-				// 	count++;
-				// }
 				
+				normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
+
+				if (info) {
+					r = info.d;
+					f = cp.v.mult(normal, 10000/r);
+					simulation.bodies[2].applyForce(f,cp.v(0,0));
+				} else {
+					simulation.bodies[2].f = cp.v(0,0);
+				}
+
+				console.log(normal);			
 				
 				// Step by timestep simStep
 				simulation.space.step(simStep);
