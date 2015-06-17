@@ -251,10 +251,8 @@ serial0.on('open', function () {
 				start = 0;
 
 				// Update state
-				if (ready) {
-					x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
-					y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
-				}
+				x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
+				y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
 
 				// console.log(state);
 
