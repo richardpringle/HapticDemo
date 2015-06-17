@@ -34,6 +34,9 @@ var ready = false;
 buffx = new Buffer(4);
 buffy = new Buffer(4);
 buffOut = new Buffer(9);
+// Dumby buffer
+zeroBuffer = new Buffer(9).fill(0);
+
 
 // Create buffers to send to Arduino
 function force (step, fx, fy) {
@@ -225,7 +228,7 @@ serial0.on('open', function () {
 		/* START [NODE <-> ARDUNIO] COMMUNICATION LOOP */
 
 		// Write buffOut to begin loop
-		serial0.write(buffOut, function(err, data) {
+		serial0.write(zeroBuffer, function(err, data) {
 			console.log('resultsOut4 ' + data);
 			if (err) {
 				console.error(err);
@@ -251,14 +254,19 @@ serial0.on('open', function () {
 				// once state[] is populated, reset state to zero
 				start = 0;
 
-				// console.log(buffOut);
+				console.log(buffOut);
 
 				// Write to Arduino to continue loop
-				serial0.write(buffOut, function(err, data) {
+				// serial0.write(buffOut, function(err, data) {
+				// 	if (err) {
+				// 		console.error(err);
+				// 	}
+				// });				
+				serial0.write(zeroBuffer, function(err, data) {
 					if (err) {
 						console.error(err);
 					}
-				});				
+				});
 			
 			}
 		});
@@ -292,7 +300,7 @@ serial0.on('open', function () {
 				// 	force(0x00, 0, 0);
 				// }
 
-				if (simulation.space.arbiters.length && (x < 600) && !count) {
+				if (simulation.space.arbiters.length) {
 					console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
 					force(0x00, 0, simulation.space.arbiters[0].totalImpulse().x);
 					count++;
@@ -302,6 +310,8 @@ serial0.on('open', function () {
 
 				// Step by timestep simStep
 				simulation.space.step(simStep);
+			} else {
+				force(0x00, 0, 0);
 			}
 		
 		}, simStep*1000);
