@@ -221,6 +221,9 @@ serial0.on('open', function () {
 
 		});
 
+		// Initilize simulation_1
+		simulation = init_simulation_1();
+
 
 		/* START [NODE <-> ARDUNIO] COMMUNICATION LOOP */
 
@@ -258,57 +261,51 @@ serial0.on('open', function () {
 					if (err) {
 						console.error(err);
 					}
-				});				
-			
-			}
-		
+				});	
+
+
+
 
 
 /* This is a test to see if I should run the simulation loop within the arduino loop */
 
-			if (ready) {
+				if (ready) {
 
-				// Update state
-				x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
-				y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
-				// var vx = state[3]*PPI;
-				// var vy = state[2]*PPI;
+					// Update state
+					x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
+					y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
+					// var vx = state[3]*PPI;
+					// var vy = state[2]*PPI;
 
-				simulation.bodies[0].setPos(cp.v(x,y));	
+					simulation.bodies[0].setPos(cp.v(x,y));	
 
-				if (x > 600) {
-					console.log(1);
-					force(0x00, 0, -75000);
-				} else {
-					console.log(0);
-					force(0x00, 0, 0);
+					if (x > 600) {
+						console.log(1);
+						force(0x00, 0, 0);
+					} else {
+						console.log(0);
+						force(0x00, 0, 0);
+					}
+
+					// if (simulation.space.arbiters.length && (x < 600)) {
+					// 	console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
+					// }
+					simeStep = Date.now() - time;
+					time = Date.now(); 
+					// Step by timestep simStep
+					simulation.space.step(simStep);
 				}
 
-				// if (simulation.space.arbiters.length && (x < 600)) {
-				// 	console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
-				// }
-				simeStep = Date.now() - time;
-				time = Date.now(); 
-				// Step by timestep simStep
-				simulation.space.step(simStep);
+
+			
 			}
-
-
-
-
-
-
+		
 		});
 
 		/* END [NODE <-> ARDUINO] COMMUNICATION LOOP */
 
 
 		/* START CP LOOP */
-
-		// Initilize simulation_1
-		simulation = init_simulation_1();
-
-		var count = 0;
 
 		// Loop through simulation at 1/simStep Hz
 		// setInterval(function () {	
