@@ -314,12 +314,12 @@ serial0.on('open', function () {
 
 				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);
 				
-				normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
 
 				if (info) {
+					normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
 					r = info.d;
 					f = cp.v.mult(normal, 10000/r);
-					simulation.bodies[2].applyForce(f,cp.v(0,0));
+					simulation.bodies[2].f = f
 				} else {
 					simulation.bodies[2].f = cp.v(0,0);
 				}
