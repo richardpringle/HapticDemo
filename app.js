@@ -262,7 +262,7 @@ serial0.on('open', function () {
 				// 		console.error(err);
 				// 	}
 				// });				
-				serial0.write(zeroBuffer, function(err, data) {
+				serial0.write(buffOut, function(err, data) {
 					if (err) {
 						console.error(err);
 					}
