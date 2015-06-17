@@ -294,6 +294,7 @@ serial0.on('open', function () {
 
 				if (simulation.space.arbiters.length && (x < 600) && !count) {
 					console.log(simulation.space.arbiters[0].totalImpulse(), cp.v.mult(simulation.space.arbiters[0].contacts[0].n, simulation.space.arbiters[0].contacts[0].jnAcc));
+					force(0x00, 0, simulation.space.arbiters[0].totalImpulse().y);
 					count++;
 				}
 
