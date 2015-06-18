@@ -283,16 +283,41 @@ serial0.on('open', function () {
 				// 	}
 				// });
 
-				if (info && !(info.d < 60) && ready) {
-					normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
-					r = info.d;
-					f = cp.v.mult(normal, 100000000/(r*r));
-					simulation.bodies[2].activate();
-					simulation.bodies[2].f = f
-					force(0x00, -3*f.x, -3*f.y);
-				} else if (ready) {
-					simulation.bodies[2].f = cp.v(0,0);
-					force(0x00, 0, 0);
+				if (ready) {
+
+					// Update state
+
+					// var vx = state[3]*PPI;
+					// var vy = state[2]*PPI;
+
+					simulation.bodies[0].setPos(cp.v(x,y));	
+
+					// if (simulation.space.arbiters.length) {
+					// 	console.log(simulation.space.arbiters[0].totalImpulse().x);
+					// 	force(0x00, 0, simulation.space.arbiters[0].totalImpulse().x);
+					// } else {
+					// 	force(0x00, 0, 0);
+					// }
+
+					info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);			
+					
+					// Step by timestep simStep
+					simulation.space.step(simStep);
+
+					if (info && !(info.d < 60)) {
+						normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
+						r = info.d;
+						f = cp.v.mult(normal, 100000000/(r*r));
+						simulation.bodies[2].activate();
+						simulation.bodies[2].f = f
+						force(0x00, -3*f.x, -3*f.y);
+					} else if (ready) {
+						simulation.bodies[2].f = cp.v(0,0);
+						force(0x00, 0, 0);
+					} else {
+						force(0x00, 0, 0);
+					}
+
 				} else {
 					force(0x00, 0, 0);
 				}
@@ -322,29 +347,9 @@ serial0.on('open', function () {
 
 			if (ready) {
 
-				// Update state
-				x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
-				y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
-				// var vx = state[3]*PPI;
-				// var vy = state[2]*PPI;
-
-				simulation.bodies[0].setPos(cp.v(x,y));	
-
-				// if (simulation.space.arbiters.length) {
-				// 	console.log(simulation.space.arbiters[0].totalImpulse().x);
-				// 	force(0x00, 0, simulation.space.arbiters[0].totalImpulse().x);
-				// } else {
-				// 	force(0x00, 0, 0);
-				// }
-
-				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);			
-				
-				// Step by timestep simStep
 				simulation.space.step(simStep);
 
-			} else {
-				force(0x00, 0, 0);
-			}
+			} 
 		
 		}, simStep*1000);
 
