@@ -148,7 +148,7 @@ function init_simulation_1 () {
 
 	// add tool shape
 	var tool_shape = space.addShape(new cp.CircleShape(tool_body, tool_radius, cp.v(0,0)));
-	tool_shape.setElasticity(1);
+	tool_shape.setElasticity(0);
 	tool_shape.setFriction(0);
 	tool_shape.setLayers(NOT_GRABABLE_MASK);
 
@@ -318,7 +318,7 @@ serial0.on('open', function () {
 				if (info) {
 					normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
 					r = info.d;
-					f = cp.v.mult(normal, 100000000000/(r*r));
+					f = cp.v.mult(normal, 1000000000/(r*r));
 					simulation.bodies[2].activate();
 					simulation.bodies[2].f = f
 				} else {
