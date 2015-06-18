@@ -302,7 +302,7 @@ serial0.on('open', function () {
 					// Step by timestep simStep
 					simulation.space.step(simStep);
 
-					if (info && !(info.d < 60)) {
+					if (info && !(info.d < 70)) {
 						normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
 						r = info.d;
 						f = cp.v.mult(normal, 100000000/(r*r));
