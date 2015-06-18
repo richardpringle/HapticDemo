@@ -316,10 +316,10 @@ serial0.on('open', function () {
 				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);
 				
 
-				if (info) {
+				if (info && (info.d < 60)) {
 					normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
 					r = info.d;
-					f = cp.v.mult(normal, 1000000000/(r*r));
+					f = cp.v.mult(normal, 100000000/(r*r));
 					simulation.bodies[2].activate();
 					simulation.bodies[2].f = f
 				} else {
