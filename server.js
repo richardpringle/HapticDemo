@@ -22,9 +22,9 @@ io.on('connection', function(socket){
 
 });
 
-http.listen(3000, '142.157.36.66', function(){
-  console.log('server running at 142.157.36.66')
-  console.log('listening on port 3000');
+http.listen(8080, '142.157.36.19', function(){
+  console.log('server running at 142.157.36.19')
+  console.log('listening on port 8080');
 });
 
 
