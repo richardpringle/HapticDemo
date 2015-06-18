@@ -269,7 +269,7 @@ serial0.on('open', function () {
 				// once state[] is populated, reset state to zero
 				start = 0;
 
-				// console.log(buffOut);
+				console.log(buffOut);
 
 				// Write to Arduino to continue loop
 				// serial0.write(buffOut, function(err, data) {
@@ -360,7 +360,7 @@ serial0.on('open', function () {
 	    	console.log('user disconnected');
 	    	ready = false;
 	    	reset = true;
-	    	force(0x00,0,0)
+	    	force(0x00,0,0);
 	  	});
 
 	});
