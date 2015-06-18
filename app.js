@@ -27,6 +27,7 @@ var SerialPort = serialport.SerialPort;
 var serial0 = new SerialPort("/dev/ttymxc3", {baudrate: 115200});
 var data_received = false;
 var ready = false;
+var reset = false;
 
 /* START BUFFERS */
 
@@ -240,12 +241,14 @@ serial0.on('open', function () {
 		/* START [NODE <-> ARDUNIO] COMMUNICATION LOOP */
 
 		// Write buffOut to begin loop
-		serial0.write(zeroBuffer, function(err, data) {
-			console.log('resultsOut4 ' + data);
-			if (err) {
-				console.error(err);
-			}
-		});
+		if (!reset) {
+			serial0.write(zeroBuffer, function(err, data) {
+				console.log('resultsOut4 ' + data);
+				if (err) {
+					console.error(err);
+				}
+			});
+		}
 
 		// On data receipt, slice data into (float) position and velocity
 		serial0.on('data', function(data) {
@@ -322,8 +325,10 @@ serial0.on('open', function () {
 					f = cp.v.mult(normal, 100000000/(r*r));
 					simulation.bodies[2].activate();
 					simulation.bodies[2].f = f
+					force(0x00, f.y, f.x);
 				} else {
 					simulation.bodies[2].f = cp.v(0,0);
+					force(0x00, 0, 0);
 				}			
 				
 				// Step by timestep simStep
@@ -354,6 +359,8 @@ serial0.on('open', function () {
 	  	socket.on('disconnect', function(){
 	    	console.log('user disconnected');
 	    	ready = false;
+	    	reset = true;
+	    	force(0x00,0,0)
 	  	});
 
 	});
