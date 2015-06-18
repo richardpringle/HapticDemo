@@ -325,7 +325,7 @@ serial0.on('open', function () {
 					f = cp.v.mult(normal, 100000000/(r*r));
 					simulation.bodies[2].activate();
 					simulation.bodies[2].f = f
-					force(0x00, f.y, f.x);
+					force(0x00, -3*f.y, -3*f.x);
 				} else {
 					simulation.bodies[2].f = cp.v(0,0);
 					force(0x00, 0, 0);
