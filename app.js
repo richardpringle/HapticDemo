@@ -105,7 +105,7 @@ function init_simulation_1 () {
 	var space = new cp.Space();
 	space.iterations = 15;
 	space.gravity = cp.v(0,0);
-	space.damping = 1;
+	space.damping = 0.9;
 	space.sleepTimeThreshold = 0.5;
 	space.collisionSlop = 0.5;
 	space.collisionBias = 1;
@@ -160,6 +160,7 @@ function init_simulation_1 () {
 	ball_body.setPos(cp.v(500, 100));
 	var ball_shape = space.addShape(new cp.CircleShape(ball_body, ball_radius, cp.v(0,0)));
 	ball_shape.setElasticity(0.5);
+	ball_shape.setFriction(1);
 
 	// add coupling for user and virtual tool
 	// var couple = new cp.DampedSpring(user_body, tool_body, cp.v(0,0), cp.v(0,0), 0, 10000, 0);
