@@ -149,7 +149,7 @@ function init_simulation_1 () {
 	// add tool shape
 	var tool_shape = space.addShape(new cp.CircleShape(tool_body, tool_radius, cp.v(0,0)));
 	tool_shape.setElasticity(0);
-	tool_shape.setFriction(0);
+	tool_shape.setFriction(1);
 	tool_shape.setLayers(NOT_GRABABLE_MASK);
 
 	// add ball body
