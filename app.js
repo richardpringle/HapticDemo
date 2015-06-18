@@ -37,17 +37,27 @@ buffy = new Buffer(4);
 buffOut = new Buffer(9);
 // Dumby buffer
 zeroBuffer = new Buffer(9).fill(0);
+// Last buffOut
+lastBuffOut = new Buffer(9);
+var writingForce = false;
 
 
 // Create buffers to send to Arduino
 function force (step, fx, fy) {
-	buffx.writeFloatLE(fx);
-	buffy.writeFloatLE(fy);
-	// Concats buffx and buffy into new Buffer bufForce
-	buffOut.writeUInt8(step);
-	buffx.copy(buffOut, 1);
-	buffy.copy(buffOut, 5);
+	lastBuffOut.copy(buffOut);
+	writingForce = true;
+	buffOut.writeUInt8(step)
+	buffOut.writeFloatLE(fy, 1);
+	buffOut.writeFloatLE(fx, 5);
+	writingForce = false;
 }
+
+	// buffx.writeFloatLE(fx);
+	// buffy.writeFloatLE(fy);
+	// // Concats buffx and buffy into new Buffer bufForce
+	// buffOut.writeUInt8(step);
+	// buffx.copy(buffOut, 1);
+	// buffy.copy(buffOut, 5);
 
 // var for data received
 stateBuffer = new Buffer(16);
@@ -277,11 +287,20 @@ serial0.on('open', function () {
 				// 		console.error(err);
 				// 	}
 				// });				
-				serial0.write(buffOut, function(err, data) {
-					if (err) {
-						console.error(err);
-					}
-				});
+				
+				if (!writingForce) {	
+					serial0.write(buffOut, function(err, data) {
+						if (err) {
+							console.error(err);
+						}
+					});
+				} else {
+					serial0.write(lastBuffOut, function(err, data) {
+						if (err) {
+							console.error(err);
+						}
+					});
+				}
 			
 			}
 		});
@@ -325,7 +344,7 @@ serial0.on('open', function () {
 					f = cp.v.mult(normal, 100000000/(r*r));
 					simulation.bodies[2].activate();
 					simulation.bodies[2].f = f
-					force(0x00, -3*f.y, -3*f.x);
+					force(0x00, -3*f.x, -3*f.y);
 				} else {
 					simulation.bodies[2].f = cp.v(0,0);
 					force(0x00, 0, 0);
