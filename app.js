@@ -285,10 +285,8 @@ serial0.on('open', function () {
 
 				if (ready) {
 
-					// Update state
-
-					// var vx = state[3]*PPI;
-					// var vy = state[2]*PPI;
+					x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
+					y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
 
 					simulation.bodies[0].setPos(cp.v(x,y));	
 
