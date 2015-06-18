@@ -18,14 +18,13 @@ app.use(express.static(__dirname));
 
 
 // Initialize Serial Port Connection
-// var SerialPort = serialport.SerialPort;
-// var serial0 = new SerialPort("COM10", {baudrate: 115200});
+var SerialPort = serialport.SerialPort;
+var serial0 = new SerialPort("COM10", {baudrate: 115200});
 
 // TODO:
 // Initialize Serial Port Connection
-var SerialPort = serialport.SerialPort;
-var serial0 = new SerialPort("/dev/ttymxc3", {baudrate: 115200});
-var data_received = false;
+// var SerialPort = serialport.SerialPort;
+// var serial0 = new SerialPort("/dev/ttymxc3", {baudrate: 115200});
 var ready = false;
 var reset = false;
 
@@ -37,21 +36,24 @@ buffy = new Buffer(4);
 buffOut = new Buffer(9);
 // Dumby buffer
 zeroBuffer = new Buffer(9).fill(0);
+var outFull = false;
+var inFull = false;
 
 
 // Create buffers to send to Arduino
 function force (step, fx, fy) {
-	buffOut.writeUInt8(step)
-	buffOut.writeFloatLE(fy, 1);
-	buffOut.writeFloatLE(fx, 5);
+	if (inFull) {
+		outFull = false;
+		buffOut.writeUInt8(step);
+		buffOut.writeFloatLE(fy, 1);
+		buffOut.writeFloatLE(fx, 5);
+		outFull = true;
+	} else {
+		outFull = false;
+		zeroBuffer.copy(buffOut);
+		outFull = true;
+	}
 }
-
-	// buffx.writeFloatLE(fx);
-	// buffy.writeFloatLE(fy);
-	// // Concats buffx and buffy into new Buffer bufForce
-	// buffOut.writeUInt8(step);
-	// buffx.copy(buffOut, 1);
-	// buffy.copy(buffOut, 5);
 
 // var for data received
 stateBuffer = new Buffer(16);
@@ -76,10 +78,10 @@ var width = 1024;
 var height = 695;
 var PPI = 3.21;
 
-var EE_topRight = [];
-var EE_topLeft = [];
-var EE_bottomRight = [];
-var EE_bottomLeft = [];
+var topRight = [];
+var topLeft = [];
+var bottomRight = [];
+var bottomLeft = [];
 var center = [];
 var x_min, x, y;
 
@@ -108,7 +110,7 @@ function init_simulation_1 () {
 	// Quick test: one static ball, one moving ball 
 
 	var space = new cp.Space();
-	space.iterations = 15;
+	space.iterations = 10;
 	space.gravity = cp.v(0,0);
 	space.damping = 0.9;
 	space.sleepTimeThreshold = 0.5;
@@ -226,16 +228,20 @@ serial0.on('open', function () {
 					break;
 				case 1:
 					bottomLeft = [state[1], state[0]];
+					console.log(bottomLeft);
 					break;
 				case 2:
 					bottomRight = [state[1], state[0]];
+					console.log(bottomRight);
 					break;
 				case 3:
 					topRight = [state[1], state[0]];
 					x_min = 2*center[0] - bottomRight[0];
+					console.log(topRight);
 					break;
 				case 4:
 					topLeft = [state[1], state[0]];
+					console.log(topLeft);
 					break;
 			}
 
@@ -246,8 +252,8 @@ serial0.on('open', function () {
 
 		// Write buffOut to begin loop
 		if (!reset) {
-			zeroBuffer.copy(buffOut);
-			serial0.write(buffOut, function(err, data) {
+			serial0.drain();
+			serial0.write(zeroBuffer, function(err, data) {
 				console.log('resultsOut4 ' + data);
 				if (err) {
 					console.error(err);
@@ -258,12 +264,19 @@ serial0.on('open', function () {
 		// On data receipt, slice data into (float) position and velocity
 		serial0.on('data', function(data) {
 
+			inFull = false;
+
 			// copy 'data' into stateBuffer until full 
 			data.copy(stateBuffer, start);
 			start += data.length;
 
+			// if (ready){
+				console.log(data.readFloatLE());
+			// }
+
 			// if stateBuffer is full:
 			if (start === 16) {
+				inFull = true;
 				state = 	[
 								stateBuffer.slice(0,4).readFloatLE(),
 								stateBuffer.slice(4,8).readFloatLE(),
@@ -274,59 +287,22 @@ serial0.on('open', function () {
 				// once state[] is populated, reset state to zero
 				start = 0;
 
-				// console.log(buffOut);
 
-				// Write to Arduino to continue loop
-				// serial0.write(buffOut, function(err, data) {
-				// 	if (err) {
-				// 		console.error(err);
-				// 	}
-				// });
-
-				if (ready) {
-
+				if (topLeft.length) {
 					x = mm2px(state[1], x_min, bottomRight[0], 0, 1024);
 					y = mm2px(state[0], topRight[1], bottomRight[1], 0, 695);
-
-					simulation.bodies[0].setPos(cp.v(x,y));	
-
-					// if (simulation.space.arbiters.length) {
-					// 	console.log(simulation.space.arbiters[0].totalImpulse().x);
-					// 	force(0x00, 0, simulation.space.arbiters[0].totalImpulse().x);
-					// } else {
-					// 	force(0x00, 0, 0);
-					// }
-
-					info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);			
-					
-					// Step by timestep simStep
-					simulation.space.step(simStep);
-
-					if (info && !(info.d < 70)) {
-						normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
-						r = info.d;
-						f = cp.v.mult(normal, 100000000/(r*r));
-						simulation.bodies[2].activate();
-						simulation.bodies[2].f = f
-						force(0x00, -3*f.x, -3*f.y);
-					} else if (ready) {
-						simulation.bodies[2].f = cp.v(0,0);
-						force(0x00, 0, 0);
-					} else {
-						force(0x00, 0, 0);
-					}
-
-				} else {
-					force(0x00, 0, 0);
 				}
-				
-	
-				serial0.write(buffOut, function(err, data) {
-					if (err) {
-						console.error(err);
-					}
-				});
-			
+
+				// console.log(buffOut);
+				if (inFull && outFull) {
+					serial0.drain();
+					serial0.write(buffOut, function(err, data) {
+						// console.log("resultsOut0: ", data);
+						if (err) {
+							console.error(err);
+						}
+					});
+				}			
 			}
 		});
 
@@ -345,9 +321,46 @@ serial0.on('open', function () {
 
 			if (ready) {
 
+				simulation.bodies[0].setPos(cp.v(x,y));	
+
+				// if (simulation.space.arbiters.length) {
+				// 	console.log(simulation.space.arbiters[0].totalImpulse().x);
+				// 	force(0x00, 0, simulation.space.arbiters[0].totalImpulse().x);
+				// } else {
+				// 	force(0x00, 0, 0);
+				// }
+
+				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);			
+				
+				// Step by timestep simStep
 				simulation.space.step(simStep);
 
-			} 
+				if (info && !(info.d < 70)) {
+					normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
+					r = info.d;
+					f = cp.v.mult(normal, 100000000/(r*r));
+					simulation.bodies[2].activate();
+					simulation.bodies[2].f = f
+					force(0x00, -3*f.x, -3*f.y);
+				} else if (info ) {
+					normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
+					r = info.d;
+					f = cp.v.mult(normal, 291.5*r);
+					simulation.bodies[2].activate();
+					simulation.bodies[2].f = f
+					force(0x00, -3*f.x, -3*f.y);
+				} else if (ready) {
+					simulation.bodies[2].f = cp.v(0,0);
+					force(0x00, 0, 0);
+				} else {
+					force(0x00, 0, 0);
+				}
+
+				simulation.space.step(simStep);
+
+			} else {
+				force(0x00, 0, 0);
+			}
 		
 		}, simStep*1000);
 
@@ -378,12 +391,12 @@ serial0.on('open', function () {
 
 	// TODO: 
 	// address subject to change
-	http.listen(3000, '142.157.114.94', function(){
-	  console.log('listening on 142.157.114.94:3000');
-	});
-	// http.listen(3000, '142.157.36.19', function(){
-	//   console.log('listening on 142.157.36.19:3000');
+	// http.listen(3000, '142.157.114.94', function(){
+	//   console.log('listening on 142.157.114.94:3000');
 	// });
+	http.listen(8080, '142.157.36.31', function(){
+	  console.log('listening on 142.157.36.31:8080');
+	});
 
 });
 
