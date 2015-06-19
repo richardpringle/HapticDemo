@@ -1,4 +1,3 @@
-
  /* START REQUIREMENTS */
 
 var express = require('express');
@@ -43,10 +42,20 @@ var inFull = false;
 // Create buffers to send to Arduino
 function force (step, fx, fy) {
 	if (inFull) {
+		fx = Math.floor(fx);
+		fy = Math.floor(fy);
 		outFull = false;
 		buffOut.writeUInt8(step);
-		buffOut.writeFloatLE(fy, 1);
-		buffOut.writeFloatLE(fx, 5);
+		if (fy) {
+			buffOut.writeFloatLE(fy, 1);
+		} else {
+			buffOut.writeFloatLE(0, 1);
+		}
+		if (fx) {
+			buffOut.writeFloatLE(fx, 5);	
+		} else {
+			buffOut.writeFloatLE(0,5);
+		}
 		outFull = true;
 	} else {
 		outFull = false;
@@ -67,6 +76,7 @@ var state = [0,0,0,0];
 
 var renStep = 1/30;
 var simStep = 1/250;
+var renStepCounter = 0;
 
 /* END TIME VARIABLEs */
 
@@ -164,7 +174,7 @@ function init_simulation_1 () {
 	var ball_radius = 40;
 	var ball_moment = cp.momentForCircle(ball_mass, 0, ball_radius, cp.v(0,0));
 	var ball_body = space.addBody(new cp.Body(ball_mass, ball_moment));
-	ball_body.setPos(cp.v(500, 100));
+	ball_body.setPos(cp.v(500, 500));
 	var ball_shape = space.addShape(new cp.CircleShape(ball_body, ball_radius, cp.v(0,0)));
 	ball_shape.setElasticity(0.5);
 	ball_shape.setFriction(1);
@@ -252,7 +262,6 @@ serial0.on('open', function () {
 
 		// Write buffOut to begin loop
 		if (!reset) {
-			serial0.drain();
 			serial0.write(zeroBuffer, function(err, data) {
 				console.log('resultsOut4 ' + data);
 				if (err) {
@@ -270,9 +279,6 @@ serial0.on('open', function () {
 			data.copy(stateBuffer, start);
 			start += data.length;
 
-			// if (ready){
-				console.log(data.readFloatLE());
-			// }
 
 			// if stateBuffer is full:
 			if (start === 16) {
@@ -283,6 +289,9 @@ serial0.on('open', function () {
 								stateBuffer.slice(8,12).readFloatLE(),
 								stateBuffer.slice(12,16).readFloatLE()
 							];
+
+				// console.log([state[2], state[3], state[0], state[1]]);
+				console.log(state);
 
 				// once state[] is populated, reset state to zero
 				start = 0;
@@ -295,8 +304,8 @@ serial0.on('open', function () {
 
 				// console.log(buffOut);
 				if (inFull && outFull) {
-					serial0.drain();
 					serial0.write(buffOut, function(err, data) {
+						// console.log(buffOut.readFloatLE(1), buffOut.readFloatLE(5));
 						// console.log("resultsOut0: ", data);
 						if (err) {
 							console.error(err);
@@ -330,7 +339,9 @@ serial0.on('open', function () {
 				// 	force(0x00, 0, 0);
 				// }
 
-				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);			
+				// info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);			
+				info = false;
+				//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 				
 				// Step by timestep simStep
 				simulation.space.step(simStep);
