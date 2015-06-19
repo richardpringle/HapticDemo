@@ -73,6 +73,17 @@
         seg.opacity = 0.5;
       };
 
+      var bubble_colors = ['#E2FFE6', '#DDFEFE', '#DEF6FD', '#FAECFF'];
+
+      // Function to create a bubble 
+      var bubble = function (pos, size) {
+        var b = new Path.Circle(pos, size);
+        b.strokeColor = bubble_colors[Math.floor(Math.random() * bubble_colors.length)];
+        b.strokeWidth = Math.ceil(1 + Math.random() * 4);
+        b.opacity = 0.1 + Math.random();
+        return b;
+      };
+
       // Have a different setup based on chosen slingshot arm separation size
       var setup = function (size, width, height, radius, arm_size) {
         var components = {};
@@ -87,11 +98,11 @@
 
         // Slingshot arms (made of coral)
         components.armTop = {
-          x1: 0, y1: a, x2: arm_size, y2: a,
+          x1: width, y1: a, x2: width - arm_size, y2: a,
           create: function () { return segment(this.x1, this.y1, this.x2, this.y2); }
         };
         components.armBottom = {
-          x1: 0, y1: b, x2: arm_size, y2: b,
+          x1: width, y1: b, x2: width - arm_size, y2: b,
           create: function () { segment(this.x1, this.y1, this.x2, this.y2); }
         };
         
@@ -100,14 +111,14 @@
           var slingshot = new Path();
           // Add an extra 15 - this is half the size of the coral arm width 
           // allows seaweed to 'wrap around' arm 
-            slingshot.add(new Point(arm_size, a + 15));
+            slingshot.add(new Point(width - arm_size, a + 15));
 
             // Where the urchin will be nestled to start with 
-            components.start.x = arm_size - 20;
+            components.start.x = width - arm_size + 20;
             components.start.y = a - ((a - b) / 2);
             slingshot.apex = slingshot.add(new Point(components.start.x, components.start.y));
 
-          slingshot.add(new Point(arm_size, b - 15));
+          slingshot.add(new Point(width - arm_size, b - 15));
           
           slingshot.strokeColor = 'green';
           slingshot.strokeWidth = 10;
@@ -123,31 +134,36 @@
           components.urchin_center = center = {x: components.start.x + 20, y: components.start.y - 8};
 
           // Add spikes to urchin 
-          var spikes = [];
-          for (var i = 0; i < 200; i++) {
-            var s = spike(center, components.urchin_radius);
-            s.rotate(Math.random() * 500);
-            spikes.push(s);
-          }
+          // var spikes = [];
+          // for (var i = 0; i < 200; i++) {
+          //   var s = spike(center, components.urchin_radius);
+          //   s.rotate(Math.random() * 500);
+          //   spikes.push(s);
+          // }
 
-          var body = new Group(spikes);
-          body.fillColor = 'black';
-          body.opacity = 0.6;
-          body.position = center;
+          // var body = new Group(spikes);
+          // body.fillColor = 'black';
+          // body.opacity = 0.6;
+          // body.position = center;
 
-          // Add eyes to urchin 
-          var eye1 = new Path.Circle(new Point(center.x - 5, center.y), 8);
-          var eye2 = new Path.Circle(new Point(center.x + 5, center.y), 8);
-          var inner1 = new Path.Circle(new Point(center.x - 5, center.y), 2);
-          var inner2 = new Path.Circle(new Point(center.x + 5, center.y), 2);
-          var outers = new Group(eye1, eye2);
-          var inners = new Group(inner1, inner2);
-          outers.fillColor = 'black';
-          inners.fillColor = 'white';
-          var eyes = new Group(outers, inners);
+          // // Add eyes to urchin 
+          // var eye1 = new Path.Circle(new Point(center.x - 5, center.y), 8);
+          // var eye2 = new Path.Circle(new Point(center.x + 5, center.y), 8);
+          // var inner1 = new Path.Circle(new Point(center.x - 5, center.y), 2);
+          // var inner2 = new Path.Circle(new Point(center.x + 5, center.y), 2);
+          // var outers = new Group(eye1, eye2);
+          // var inners = new Group(inner1, inner2);
+          // outers.fillColor = 'black';
+          // inners.fillColor = 'white';
+          // var eyes = new Group(outers, inners);
 
-          var group = new Group(body, eyes, inners);;
-          var urchin = {body: body, eyes: eyes, inners: inners, group: group}
+          // var group = new Group(body, eyes, inners);;
+          // var urchin = {body: body, eyes: eyes, inners: inners, group: group}
+
+          var ball = new Path.Circle(new Point(center.x - urchin_radius - 10, center.y), urchin_radius);
+          ball.fillColor = 'black';
+          ball.opacity = 0.7;
+          var urchin = {body: ball};
           return urchin;
         };
 
@@ -251,7 +267,7 @@
       };
 
       // Colors and gradient width percentages for the sea gradient 
-      var sea_colors = ["#092B5A", "#09738A", "#78A890", "#9ED1B7"];
+      var sea_colors = ["#9ED1B7", "#78A890", "#09738A", "#092B5A"];
 
       // Make the background a nice gradient of blue/green
       var background = new Path.Rectangle({
@@ -283,6 +299,8 @@
         strokeColor: 'DarkGoldenRod',
         strokeWidth: 20
       });
+
+      var arena, urchin, eel;
       
       var countClicks = 0;
 
@@ -332,10 +350,21 @@
                 bottomRight.remove();
                 ball.position = new Point(500, 100);
                 // Set up the slingshot arena 
-                var arena = setup(size, width, height, urchin_radius, arm_size);
+                arena = setup(size, width, height, urchin_radius, arm_size);
                 arena.armTop.create();
                 arena.armBottom.create();
                 var slingshot = arena.slingshot();
+
+                urchin = arena.urchin();
+                var eel_specs = {p: new Point(200, 200), size: 60, dir: -1, step: 5, width: 20};
+                eel = arena.eel(eel_specs);
+
+                var time = 0.0;
+                setInterval(function () {
+                  arena.animate_eel(eel, time, eel_specs.step, eel_specs.p.x, eel_specs.width);
+                  view.draw();
+                  time += 0.1;
+                }, 100);
 
                 view.draw();
                 socket.emit('ready');
@@ -363,6 +392,8 @@
 
         view.draw();
       });
+
+      
 
 
     </script>

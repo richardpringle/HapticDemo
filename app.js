@@ -106,6 +106,8 @@ var info;
 var normal;
 var r;
 var f;
+var a, b;
+var k = 10000;	 // spring stiffness
 
 /* END CP VARIABLES */
 
@@ -179,12 +181,14 @@ function init_simulation_1 () {
 	ball_shape.setElasticity(0.5);
 	ball_shape.setFriction(1);
 
+	// add pivot joint for sprint
+
 	// add coupling for user and virtual tool
 	// var couple = new cp.DampedSpring(user_body, tool_body, cp.v(0,0), cp.v(0,0), 0, 10000, 0);
 	// var spring0 = new cp.DampedSpring(user_body, tool_body, cp.v(0, 0), cp.v(0,60), 0, 1000, 1000);
 	// var spring1 = new cp.DampedSpring(user_body, tool_body, cp.v(0, 0), cp.v(Math.sqrt(10800),-30), 0, 1000, 1000);
 	// var spring2 = new cp.DampedSpring(user_body, tool_body, cp.v(0, 0), cp.v(Math.sqrt(10800),-30), 0, 1000, 1000);
-	var pivot = new cp.PivotJoint(user_body, tool_body, cp.v(0, 0), cp.v(0, 0));
+	var pivot = new cp.PivotJoint(user_body, tool_body, cp.v(0, 0), cp.v(1, 1));
 	// space.addConstraint(spring0);
 	// space.addConstraint(spring1);
 	// space.addConstraint(spring2);
@@ -193,7 +197,7 @@ function init_simulation_1 () {
 
 	return	{
 				'space': space,
-				'shapes': [ ,tool_shape, ball_shape], 
+				'shapes': [, tool_shape, ball_shape], 
 				'bodies': [user_body, tool_body, ball_body], 
 				'constraints': [pivot]
 			};
@@ -291,7 +295,7 @@ serial0.on('open', function () {
 							];
 
 				// console.log([state[2], state[3], state[0], state[1]]);
-				console.log(state);
+				// console.log(state);
 
 				// once state[] is populated, reset state to zero
 				start = 0;
@@ -320,15 +324,26 @@ serial0.on('open', function () {
 
 		/* START CP LOOP */
 
-		// Initilize simulation_1
+		// To calculate whether the ball is loaded in slingshot 
+		var size = 1.0;
+		var mid = height / 2;
+        a = mid + ((size / 2.0) * mid);
+        b = mid - ((size / 2.0) * mid);
+
+        var loaded = false; 
+        var pivot = null;
+
+		// Initialize simulation_1
 		simulation = init_simulation_1();
 
 		var count = 0;
-
+		
 		// Loop through simulation at 1/simStep Hz
 		setInterval(function () {	
 
 			if (ready) {
+
+				loaded = simulation.bodies[2].p.x > 694 && simulation.bodies[2].p.y > b && simulation.bodies[2].p.y < a;
 
 				simulation.bodies[0].setPos(cp.v(x,y));	
 
@@ -339,32 +354,56 @@ serial0.on('open', function () {
 				// 	force(0x00, 0, 0);
 				// }
 
-				// info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);			
-				info = false;
+				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);			
+				//info = false;
 				//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 				
 				// Step by timestep simStep
 				simulation.space.step(simStep);
 
-				if (info && !(info.d < 70)) {
-					normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
-					r = info.d;
-					f = cp.v.mult(normal, 100000000/(r*r));
-					simulation.bodies[2].activate();
-					simulation.bodies[2].f = f
-					force(0x00, -3*f.x, -3*f.y);
-				} else if (info ) {
-					normal = cp.v.normalize(cp.v.sub(cp.v(x,y), simulation.bodies[2].p));
-					r = info.d;
-					f = cp.v.mult(normal, 291.5*r);
-					simulation.bodies[2].activate();
-					simulation.bodies[2].f = f
-					force(0x00, -3*f.x, -3*f.y);
-				} else if (ready) {
-					simulation.bodies[2].f = cp.v(0,0);
-					force(0x00, 0, 0);
-				} else {
-					force(0x00, 0, 0);
+				// Distance between user and ball 
+				if (info) {
+					if (loaded) {
+						if (!pivot) {
+							// Add a pin constraint between the user and ball 
+							pivot = new cp.PivotJoint(simulation.bodies[1], simulation.bodies[2], cp.v(0, 0), cp.v(100, 0));
+							pivot.errorBias = 0.0000001;
+							simulation.space.addConstraint(pivot);
+							simulation.constraints.push(pivot);
+						}
+
+						if (simulation.bodies[2].x > x) {
+							normal = cp.v.normalize(cp.v.sub(cp.v(x, y), simulation.bodies[2].p));
+							r = info.d;
+							f = cp.v.mult(cp.v.perp(normal), k * r);
+							simulation.bodies[2].activate();
+							simulation.bodies[2].f = f;
+						} else {
+							normal = cp.v.normalize(cp.v.sub(simulation.bodies[2].p, cp.v(694, height / 2)));
+							r = info.d;
+							f = cp.v.mult(normal, k * r);
+							simulation.bodies[2].activate();
+							simulation.bodies[2].f = f;
+						}
+
+						console.log('pivot:', normal, f);
+
+					} else if (info.d >= 70) {
+						// Add a magnetic force to pick up the ball
+						normal = cp.v.normalize(cp.v.sub(cp.v(x, y), simulation.bodies[2].p));	
+						r = info.d;
+						f = cp.v.mult(normal, 100000000/(r*r));
+						simulation.bodies[2].activate();
+						simulation.bodies[2].f = f;
+						// force(0x00, -3*f.x, -3*f.y);
+						force(0x00, 0, 0);
+
+						console.log('magnetic:', normal, f);
+					} else {
+						simulation.bodies[2].f = cp.v(0,0);
+						force(0x00, 0, 0);
+						console.log('freedom!');
+					}
 				}
 
 				simulation.space.step(simStep);
