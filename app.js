@@ -103,7 +103,7 @@ var NOT_GRABABLE_MASK = ~GRABABLE_MASK_BIT;
 // Current Simulation
 var simulation = null;
 var info;
-var normal;
+var normal, normal2;
 var r;
 var f;
 var a, b;
@@ -332,6 +332,7 @@ serial0.on('open', function () {
 
         var loaded = false; 
         var pivot = null;
+        var rotSpring = null;
 
 		// Initialize simulation_1
 		simulation = init_simulation_1();
@@ -366,27 +367,20 @@ serial0.on('open', function () {
 					if (loaded) {
 						if (!pivot) {
 							// Add a pin constraint between the user and ball 
-							pivot = new cp.PivotJoint(simulation.bodies[1], simulation.bodies[2], cp.v(0, 0), cp.v(100, 0));
+							pivot = new cp.PivotJoint(simulation.bodies[1], simulation.bodies[2], cp.v(0, 0), cp.v(95, 0));
 							pivot.errorBias = 0.0000001;
 							simulation.space.addConstraint(pivot);
 							simulation.constraints.push(pivot);
 						}
 
-						if (simulation.bodies[2].x > x) {
-							normal = cp.v.normalize(cp.v.sub(cp.v(x, y), simulation.bodies[2].p));
-							r = info.d;
-							f = cp.v.mult(cp.v.perp(normal), k * r);
-							simulation.bodies[2].activate();
-							simulation.bodies[2].f = f;
-						} else {
-							normal = cp.v.normalize(cp.v.sub(simulation.bodies[2].p, cp.v(694, height / 2)));
-							r = info.d;
-							f = cp.v.mult(normal, k * r);
-							simulation.bodies[2].activate();
-							simulation.bodies[2].f = f;
-						}
+						normal = cp.v.normalize(cp.v.sub(simulation.bodies[2].p, cp.v(694, height / 2)));
+						normal2 = cp.v.normalize(cp.v.sub(cp.v(x, y), simulation.bodies[2].p));	
+						r = info.d;
+						f = cp.v.add(cp.v.mult(normal, -k * r), cp.v.mult(normal2, -k * r));
+						simulation.bodies[2].activate();
+						simulation.bodies[2].f = f; 
 
-						console.log('pivot:', normal, f);
+						console.log('loaded');
 
 					} else if (info.d >= 70) {
 						// Add a magnetic force to pick up the ball
