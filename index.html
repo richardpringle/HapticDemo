@@ -33,7 +33,10 @@
       var urchin_radius = 20;
 
       // slingshot
-      var arm_size = 350;          
+      var arm_size = 350;    
+      var slingshot, firing_pad;   
+
+      var ready;   
 
       var createCircle = function (x, y, r, color) {
         return new Shape.Circle({
@@ -84,6 +87,19 @@
         return b;
       };
 
+      // Function to create the resize buttons 
+      var button = function (x, y, w, h) {
+        var b = new Path.Rectangle(new Point(x, y), new Size(w, h));
+        // var cornerSize = new Size(10, 10);
+        // var b = new Path.RoundRectangle(rect, cornerSize);
+        b.strokeColor = 'black';
+        b.strokeWidth = 3;
+        b.fillColor = 'white';
+        b.opacity = 0.4;
+        b.clicked = false;
+        return b;
+      };
+
       // Have a different setup based on chosen slingshot arm separation size
       var setup = function (size, width, height, radius, arm_size) {
         var components = {};
@@ -125,6 +141,15 @@
           slingshot.smooth();
           slingshot.strokeCap = 'butt';
           return slingshot;
+        };
+
+        // Firing pad 
+        components.pad = function () {
+          var p = new Path(new Point(1012, 0), new Point(1012, height));
+          p.strokeColor = 'red';
+          p.strokeWidth = 24;
+          p.opacity = 0.7;
+          return p;
         };
 
         // The urchin center is slightly offset from the center of the slingshot 
@@ -300,9 +325,9 @@
         strokeWidth: 20
       });
 
-      var arena, urchin, eel;
-      
+      var arena, urchin, eel;      
       var countClicks = 0;
+      var buttons = {};
 
       function onMouseDown(event) {
           if (countClicks < 6) {
@@ -349,15 +374,23 @@
                 bottomLeft.remove();
                 bottomRight.remove();
                 ball.position = new Point(500, 100);
+                
                 // Set up the slingshot arena 
                 arena = setup(size, width, height, urchin_radius, arm_size);
+                
                 arena.armTop.create();
                 arena.armBottom.create();
-                var slingshot = arena.slingshot();
+                slingshot = arena.slingshot();
+                firing_pad = arena.pad();
 
-                urchin = arena.urchin();
+                //urchin = arena.urchin();
                 var eel_specs = {p: new Point(200, 200), size: 60, dir: -1, step: 5, width: 20};
                 eel = arena.eel(eel_specs);
+
+                var button_start = (width / 2) - 50;
+                buttons.large = button(button_start - 110, -5, 100, 100);
+                buttons.medium = button(button_start, -5, 75, 75);
+                buttons.small = button(button_start + 85, -5, 50, 50);
 
                 var time = 0.0;
                 setInterval(function () {
@@ -368,8 +401,65 @@
 
                 view.draw();
                 socket.emit('ready');
+                ready = true;
                 countClicks++;
                 break;
+            }
+
+          }
+
+          // Check to see if user has clicked on a resize button 
+          var button_start = (width / 2) - 50;
+          if (ready) {
+            var ex = event.event.x;
+            var ey = event.event.y;
+
+            // Boundaries in x direction 
+            var large_x = ex >= button_start - 110 && ex <= button_start - 10;
+            var med_x = ex >= button_start && ex <= button_start + 75;
+            var small_x = ex >= button_start + 85 && ex <= button_start + 135;
+            // Boundaries in y direction
+            var large_y = ey <= 95;
+            var med_y = ey <= 70;
+            var small_y = ey <= 45;
+
+            // Large button
+            if (large_x && large_y) {
+              if (buttons.large.clicked) buttons.large.clicked = false;
+              else {
+                buttons.large.fillColor = 'DarkGoldenRod';
+                buttons.large.clicked = true;
+
+                buttons.medium.fillColor = 'white'; buttons.medium.clicked = false;
+                buttons.small.fillColor = 'white'; buttons.small.clicked = false;
+
+                // Change arm position 
+                
+              } 
+            }
+
+            // Medium button 
+            else if (med_x && med_y) {
+              if (buttons.medium.clicked) buttons.medium.clicked = false;
+              else {
+                buttons.medium.fillColor = 'DarkGoldenRod';
+                buttons.medium.clicked = true;
+
+                buttons.large.fillColor = 'white'; buttons.large.clicked = false;
+                buttons.small.fillColor = 'white'; buttons.small.clicked = false;
+              }
+            }
+
+            // Small button 
+            else if (small_x && small_y) {
+              if (buttons.small.clicked) buttons.small.clicked = false;
+              else {
+                buttons.small.fillColor = 'DarkGoldenRod';
+                buttons.small.clicked = true;
+
+                buttons.medium.fillColor = 'white'; buttons.medium.clicked = false;
+                buttons.large.fillColor = 'white'; buttons.large.clicked = false;
+              }
             }
           }
       }
@@ -389,6 +479,27 @@
         // if ((user.position.x - user.radius - 10) < view.center.x) {
         //   wall.position.x = (user.position.x - user.radius -10);
         // }
+
+        // Move the firing pad down 
+        if (x[0] >= 940) {
+          firing_pad.position.x = x[0] + 75;
+        }
+
+        // If the urchin has been loaded, move the elastic
+        if (ready) {
+          if (pos[2]) {
+            console.log('loaded');
+            slingshot.apex.point.x = x[1];
+            slingshot.apex.point.y = y[1];
+          }
+          // Otherwise elastic goes back to original position 
+          else {
+            console.log('unloaded - back to start');
+            slingshot.apex.point.x = arena.start.x;
+            slingshot.apex.point.y = arena.start.y;
+          }
+        }
+
 
         view.draw();
       });

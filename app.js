@@ -331,6 +331,7 @@ serial0.on('open', function () {
         b = mid - ((size / 2.0) * mid);
 
         var loaded = false; 
+        var launched = false;
         var pivot = null;
         var rotSpring = null;
 
@@ -344,8 +345,8 @@ serial0.on('open', function () {
 
 			if (ready) {
 
-				// If it hasn't already been loaded 
-				if (!loaded) {
+				// If it hasn't already been loaded and isn't being launched
+				if (!loaded && !launched) {
 					// Check to see if in slingshot bounds
 					loaded = simulation.bodies[2].p.x > 694 && simulation.bodies[2].p.y > b && simulation.bodies[2].p.y < a;
 					if (pivot !== null && simulation.bodies[2].p.x < 655 && !loaded) {
@@ -388,28 +389,31 @@ serial0.on('open', function () {
 						simulation.bodies[2].activate();
 						simulation.bodies[2].f = f; 
 
-						if (x >= 1024) {
+						force(0x00, -60000, 0);
+
+						if (simulation.shapes[1].tc.x + 60 >= 1024) {
 							simulation.space.removeConstraint(pivot);
 							pivot = null;
+							launched = true;
+							force(0x00, 0, 0);
 						}
 
 					} else if (info.d >= 70) {
 						// Add a magnetic force to pick up the ball
 						normal = cp.v.normalize(cp.v.sub(cp.v(x, y), simulation.bodies[2].p));	
 						r = info.d;
-						f = cp.v.mult(normal, 100000000/(r*r));
+						f = cp.v.mult(normal, 100000000 / (r * r));
 						simulation.bodies[2].activate();
 						simulation.bodies[2].f = f;
 						// force(0x00, -3*f.x, -3*f.y);
 						force(0x00, 0, 0);
-
-						//console.log('magnetic:', normal, f);
 					} else {
 						simulation.bodies[2].f = cp.v(0,0);
+						launched = false;
 						force(0x00, 0, 0);
-						//console.log('freedom!');
 					}
 				}
+				else force(0x00, 0, 0);
 
 				simulation.space.step(simStep);
 
@@ -417,7 +421,7 @@ serial0.on('open', function () {
 				force(0x00, 0, 0);
 			}
 		
-		}, simStep*1000);
+		}, simStep * 1000);
 
 		/* END CP LOOP */
 
@@ -428,7 +432,8 @@ serial0.on('open', function () {
 		setInterval( function () {
 			socket.emit('state',[
 									[x,simulation.bodies[2].p.x],
-									[y,simulation.bodies[2].p.y]
+									[y,simulation.bodies[2].p.y],
+									loaded
 								]);
 		}, renStep*1000);
 
