@@ -45,16 +45,21 @@ function force (step, fx, fy) {
 		fx = Math.floor(fx);
 		fy = Math.floor(fy);
 		outFull = false;
-		buffOut.writeUInt8(step);
-		if (fy) {
-			buffOut.writeFloatLE(fy, 1);
+		if (step) {
+			buffOut.writeUInt8(step);
+			buffOut.fill(0x00, 1);
 		} else {
-			buffOut.writeFloatLE(0, 1);
-		}
-		if (fx) {
-			buffOut.writeFloatLE(fx, 5);	
-		} else {
-			buffOut.writeFloatLE(0,5);
+			buffOut.writeUInt8(0x00);
+			if (fy) {
+				buffOut.writeFloatLE(fy, 1);
+			} else {
+				buffOut.writeFloatLE(0, 1);
+			}
+			if (fx) {
+				buffOut.writeFloatLE(fx, 5);	
+			} else {
+				buffOut.writeFloatLE(0,5);
+			}
 		}
 		outFull = true;
 	} else {
@@ -108,6 +113,7 @@ var r;
 var f;
 var a, b;
 var k = 10000;	 // spring stiffness
+var configuration = 'large';
 
 /* END CP VARIABLES */
 
@@ -308,6 +314,46 @@ serial0.on('open', function () {
 
 				// console.log(buffOut);
 				if (inFull && outFull) {
+					// Resize event 
+					socket.on('reconfigure', function (size) {
+						// Size is large  
+						if (size === 'large') {
+							if (configuration === 'medium') {
+								// get bigger once 
+								force(0x0A, 0, 0);
+							}
+							else if (configuration === 'small') {
+								// bigger thrice 
+								force(0x0A, 0, 0); 
+							}
+							configuration = 'large';
+						}
+						// Size is medium
+						if (size === 'medium') {
+							if (configuration === 'large') {
+								// get smaller once 
+								force(0x0B, 0, 0);
+							}
+							else if (configuration === 'small') { 
+								// get bigger twice 
+								force(0x0A, 0, 0); 
+							} 
+							configuration = 'medium';
+						}
+						// Size is small 
+						else {
+							if (configuration === 'large') {
+								// get smaller thrice
+								force(0x0B, 0, 0);
+							} 
+							else if (configuration === 'medium') {
+								// get smaller twice
+								force(0x0B, 0, 0);
+							} 
+							configuration = 'small';
+						}
+					});
+
 					serial0.write(buffOut, function(err, data) {
 						// console.log(buffOut.readFloatLE(1), buffOut.readFloatLE(5));
 						// console.log("resultsOut0: ", data);
