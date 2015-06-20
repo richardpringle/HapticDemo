@@ -344,8 +344,18 @@ serial0.on('open', function () {
 
 			if (ready) {
 
-				loaded = simulation.bodies[2].p.x > 694 && simulation.bodies[2].p.y > b && simulation.bodies[2].p.y < a;
-
+				// If it hasn't already been loaded 
+				if (!loaded) {
+					// Check to see if in slingshot bounds
+					loaded = simulation.bodies[2].p.x > 694 && simulation.bodies[2].p.y > b && simulation.bodies[2].p.y < a;
+					if (pivot !== null && simulation.bodies[2].p.x < 655 && !loaded) {
+						console.log('removing constraint');
+						simulation.space.removeConstraint(pivot);
+						pivot = null;
+					}
+				} else {
+					loaded = simulation.bodies[2].p.x > 694;
+				}
 				simulation.bodies[0].setPos(cp.v(x,y));	
 
 				// if (simulation.space.arbiters.length) {
@@ -355,9 +365,7 @@ serial0.on('open', function () {
 				// 	force(0x00, 0, 0);
 				// }
 
-				info = simulation.space.nearestPointQueryNearest(cp.v(x,y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);			
-				//info = false;
-				//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				info = simulation.space.nearestPointQueryNearest(cp.v(x, y), 200, GRABABLE_MASK_BIT, cp.NO_GROUP);			
 				
 				// Step by timestep simStep
 				simulation.space.step(simStep);
@@ -380,7 +388,10 @@ serial0.on('open', function () {
 						simulation.bodies[2].activate();
 						simulation.bodies[2].f = f; 
 
-						console.log('loaded');
+						if (x >= 1024) {
+							simulation.space.removeConstraint(pivot);
+							pivot = null;
+						}
 
 					} else if (info.d >= 70) {
 						// Add a magnetic force to pick up the ball
@@ -392,11 +403,11 @@ serial0.on('open', function () {
 						// force(0x00, -3*f.x, -3*f.y);
 						force(0x00, 0, 0);
 
-						console.log('magnetic:', normal, f);
+						//console.log('magnetic:', normal, f);
 					} else {
 						simulation.bodies[2].f = cp.v(0,0);
 						force(0x00, 0, 0);
-						console.log('freedom!');
+						//console.log('freedom!');
 					}
 				}
 
