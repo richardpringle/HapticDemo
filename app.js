@@ -315,44 +315,45 @@ serial0.on('open', function () {
 				// console.log(buffOut);
 				if (inFull && outFull) {
 					// Resize event 
-					socket.on('reconfigure', function (size) {
-						// Size is large  
-						if (size === 'large') {
-							if (configuration === 'medium') {
-								// get bigger once 
-								force(0x0A, 0, 0);
-							}
-							else if (configuration === 'small') {
-								// bigger thrice 
-								force(0x0A, 0, 0); 
-							}
-							configuration = 'large';
-						}
-						// Size is medium
-						if (size === 'medium') {
-							if (configuration === 'large') {
-								// get smaller once 
-								force(0x0B, 0, 0);
-							}
-							else if (configuration === 'small') { 
-								// get bigger twice 
-								force(0x0A, 0, 0); 
-							} 
-							configuration = 'medium';
-						}
-						// Size is small 
-						else {
-							if (configuration === 'large') {
-								// get smaller thrice
-								force(0x0B, 0, 0);
-							} 
-							else if (configuration === 'medium') {
-								// get smaller twice
-								force(0x0B, 0, 0);
-							} 
-							configuration = 'small';
-						}
-					});
+					// This is probably all garbage
+					// socket.on('reconfigure', function (size) {
+					// 	// Size is large  
+					// 	if (size === 'large') {
+					// 		if (configuration === 'medium') {
+					// 			// get bigger once 
+					// 			force(0x0A, 0, 0);
+					// 		}
+					// 		else if (configuration === 'small') {
+					// 			// bigger thrice 
+					// 			force(0x0A, 0, 0); 
+					// 		}
+					// 		configuration = 'large';
+					// 	}
+					// 	// Size is medium
+					// 	if (size === 'medium') {
+					// 		if (configuration === 'large') {
+					// 			// get smaller once 
+					// 			force(0x0B, 0, 0);
+					// 		}
+					// 		else if (configuration === 'small') { 
+					// 			// get bigger twice 
+					// 			force(0x0A, 0, 0); 
+					// 		} 
+					// 		configuration = 'medium';
+					// 	}
+					// 	// Size is small 
+					// 	else {
+					// 		if (configuration === 'large') {
+					// 			// get smaller thrice
+					// 			force(0x0B, 0, 0);
+					// 		} 
+					// 		else if (configuration === 'medium') {
+					// 			// get smaller twice
+					// 			force(0x0B, 0, 0);
+					// 		} 
+					// 		configuration = 'small';
+					// 	}
+					// });
 
 					serial0.write(buffOut, function(err, data) {
 						// console.log(buffOut.readFloatLE(1), buffOut.readFloatLE(5));
