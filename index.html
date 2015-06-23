@@ -51,7 +51,78 @@
         return a + (Math.random() * (b - a)); 
       };
 
-      
+      // Helper function to return min of two numbers
+      var min = function (a, b) {
+        if (a < b) return a;
+        else return b;
+      };
+
+      // Make eel glow red or green 
+      var glow = function (eel, color) {
+        eel.body.strokeColor = color;
+        eel.tail.fillColor = color;
+        eel.head.fillColor = color;
+      };
+
+      function target_hit (urchin, target, width, arena) {
+        var bb_x = width - 50;
+        var urchin_x = urchin.group.position.x + arena.urchin_radius;
+        if (urchin_x >= bb_x) {
+          var urchin_y1 = urchin.group.position.y + arena.urchin_radius;
+          var urchin_y2 = urchin.group.position.y - arena.urchin_radius;
+          return (urchin_y2 >= target.top && urchin_y1 <= target.bottom);
+        }
+        return false;
+      }
+
+      function eel_hit (urchin, eel, arena) {
+        var bb_x = eel.group.position.x - 10;
+        var urchin_x = urchin.group.position.x + arena.urchin_radius;
+        if (urchin_x >= bb_x) {
+          var bb_y1 = eel.group.position.y + 100;
+          var bb_y2 = eel.group.position.y - 100;
+          var urchin_y1 = urchin.group.position.y + arena.urchin_radius;
+          var urchin_y2 = urchin.group.position.y - arena.urchin_radius;
+          return urchin_y1 <= bb_y1 && urchin_y2 >= bb_y2;
+        }
+        return false;
+        
+      }
+
+      // Function to create a chest target
+      var chest = function (y1, y2, width) {
+        var box = new Rectangle({
+          topLeft: new Point(width + 60, y1),
+          topRight: new Point(width - 10, y1),
+          bottomLeft: new Point(width + 60, y2),
+          bottomRight: new Point(width - 10, y2)
+        });
+        var corner_size = new Size(10, 10);
+        var rounded_box = new Path.RoundRectangle(box, corner_size);
+
+        rounded_box.fillColor = 'brown';
+        rounded_box.strokeColor = 'yellow';
+        rounded_box.strokeWidth = 3;
+
+        var handle = new Path.Circle(new Point(width + 55, (y1 + y2) / 2), 15);
+        handle.fillColor = 'brown';
+        handle.strokeColor = 'yellow';
+        handle.strokeWidth = 3;
+
+        var group = new Group(handle, rounded_box);
+
+        var interval = (y2 - y1) / 8;
+        var line;
+        for (var i = 1; i < 8; i++) {
+          line = new Path(new Point(width + 60, y1 + (i * interval)), new Point(width, y1 + (i * interval)));
+          line.strokeColor = 'yellow';
+          line.strokeWidth = 3;
+          line.opacity = 0.7;
+        }
+
+        group.opacity = 0.7;
+        return group;
+      };
 
       // Solve for y given circle radius and x 
       var circle_y = function (x, rad) {
@@ -291,6 +362,46 @@
           }
         };
 
+        // Chest targets
+        components.chest_top = function (y1, y2, width) {
+          this.top = y1;
+          this.bottom = y2;
+          this.chest = chest(y1, y2, width);
+          return this;
+        };
+
+        components.chest_bottom = function (y1, y2, width) {
+          this.top = y1;
+          this.bottom = y2;
+          this.chest = chest(y1, y2, width);
+          return this;
+        };
+
+        components.score_card = function (width, height) {
+          var mid = height / 2;
+          var card = new Rectangle({
+            topLeft: new Point(width + 60, mid - 25),
+            topRight: new Point(width - 10, mid - 25),
+            bottomLeft: new Point(width + 60, mid + 25),
+            bottomRight: new Point(width - 10, mid + 25)
+          });
+          var round_card = new Path.RoundRectangle(card, new Size(5, 5));
+          round_card.fillColor = 'red';
+          round_card.opacity = 0.6;
+
+          var score = new PointText(new Point(width + 28, mid + 9));
+          score.justification = 'center';
+          score.fillColor = 'black';
+          score.content = '2';
+          score.fontSize = 25;
+          score.fontWeight = 200;
+          score.rotate(-90);
+
+          this.card = card;
+          this.score = score;
+          return this;
+        };
+
         return components;
       };
 
@@ -387,6 +498,13 @@
                 firing_pad = arena.pad();
 
                 console.log(arm_top);
+
+                // Create the score card 
+                var scorer = arena.score_card(0, height);
+
+                // Create the two chest targets 
+                var chest1 = arena.chest_bottom(height - 200, height - 50, 0);
+                var chest2 = arena.chest_top(50, 200, 0);
 
                 //urchin = arena.urchin();
                 var eel_specs = {p: new Point(200, 200), size: 60, dir: -1, step: 5, width: 20};
