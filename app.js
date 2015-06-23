@@ -372,7 +372,7 @@ serial0.on('open', function () {
 		/* START CP LOOP */
 
 		// To calculate whether the ball is loaded in slingshot 
-		var wide = false;
+		var size = 1.0;
 		var close = false;
 		var mid = height / 2;
         a = mid + ((size / 2.0) * mid);
