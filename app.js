@@ -498,11 +498,11 @@ serial0.on('open', function () {
 
 	// TODO: 
 	// address subject to change
-	// http.listen(3000, '142.157.114.94', function(){
-	//   console.log('listening on 142.157.114.94:3000');
+	// http.listen(8080, '192.168.0.101', function(){
+	//   console.log('listening on 192.168.0.101:8080');
 	// });
-	http.listen(8080, '142.157.36.31', function(){
-	  console.log('listening on 142.157.36.31:8080');
+	http.listen(8080, '10.103.250.161', function(){
+	  console.log('listening on 10.103.259.161:8080');
 	});
 
 });
