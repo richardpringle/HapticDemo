@@ -26,6 +26,7 @@ var serial0 = new SerialPort("COM10", {baudrate: 115200});
 // var serial0 = new SerialPort("/dev/ttymxc3", {baudrate: 115200});
 var ready = false;
 var reset = false;
+var reconfigure = false;
 
 /* START BUFFERS */
 
@@ -149,12 +150,12 @@ function init_simulation_1 () {
 	  
 	//add walls
 	var wallLeft = space.addShape(new cp.SegmentShape(space.staticBody,bounds[0], bounds[1], 0));
-	wallLeft.setElasticity(0.5);
+	wallLeft.setElasticity(0);
 	wallLeft.setFriction(0);
 	floor.setLayers(NOT_GRABABLE_MASK);
 
 	var wallRight = space.addShape(new cp.SegmentShape(space.staticBody, bounds[3], bounds[2], 0));
-	wallRight.setElasticity(0.5);
+	wallRight.setElasticity(0);
 	wallRight.setFriction(0);
 	floor.setLayers(NOT_GRABABLE_MASK);
 
@@ -315,8 +316,9 @@ serial0.on('open', function () {
 				// console.log(buffOut);
 				if (inFull && outFull) {
 					// Resize event 
-					// This is probably all garbage
-					// socket.on('reconfigure', function (size) {
+					// socket.on('reconfigure', function (out) {
+					// 	force(out, 0, 0);						
+					// }
 					// 	// Size is large  
 					// 	if (size === 'large') {
 					// 		if (configuration === 'medium') {
@@ -373,7 +375,6 @@ serial0.on('open', function () {
 
 		// To calculate whether the ball is loaded in slingshot 
 		var size = 1.0;
-		var close = false;
 		var mid = height / 2;
         a = mid + ((size / 2.0) * mid);
         b = mid - ((size / 2.0) * mid);
@@ -398,7 +399,7 @@ serial0.on('open', function () {
 					// Check to see if in slingshot bounds
 					loaded = simulation.bodies[2].p.x > 694 && simulation.bodies[2].p.y > b && simulation.bodies[2].p.y < a;
 					if (pivot !== null && simulation.bodies[2].p.x < 655 && !loaded) {
-						console.log('removing constraint');
+						// console.log('removing constraint');
 						simulation.space.removeConstraint(pivot);
 						pivot = null;
 					}
@@ -435,9 +436,10 @@ serial0.on('open', function () {
 						r = info.d;
 						f = cp.v.add(cp.v.mult(normal, -k * r), cp.v.mult(normal2, -k * r));
 						simulation.bodies[2].activate();
-						simulation.bodies[2].f = f; 
-
-						force(0x00, -60000, 0);
+						simulation.bodies[2].f = f;
+						// force(0x00, -60000, 0);
+						f = cp.v.mult(normal, -60000); 
+						force(0x00, f.x, f.y);
 
 						if (simulation.shapes[1].tc.x + 60 >= 1024) {
 							simulation.space.removeConstraint(pivot);
@@ -453,15 +455,19 @@ serial0.on('open', function () {
 						f = cp.v.mult(normal, 100000000 / (r * r));
 						simulation.bodies[2].activate();
 						simulation.bodies[2].f = f;
-						// force(0x00, -3*f.x, -3*f.y);
-						force(0x00, 0, 0);
+						// remove this line for no
+						force(0x00, -2*f.x, -2*f.y);
+						// force(0x00, 0, 0);
 					} else {
-						simulation.bodies[2].f = cp.v(0,0);
+						normal = cp.v.normalize(cp.v.sub(cp.v(x, y), simulation.bodies[2].p));
+						f = cp.v.mult(normal, 4000);
+						simulation.bodies[2].f = f;
 						launched = false;
 						force(0x00, 0, 0);
 					}
+				} else {
+					force(0x00, 0, 0);
 				}
-				else force(0x00, 0, 0);
 
 				simulation.space.step(simStep);
 
@@ -499,12 +505,12 @@ serial0.on('open', function () {
 
 	// TODO: 
 	// address subject to change
-	// http.listen(8080, '192.168.0.101', function(){
-	//   console.log('listening on 192.168.0.101:8080');
-	// });
-	http.listen(8080, '10.103.250.161', function(){
-	  console.log('listening on 10.103.259.161:8080');
+	http.listen(8080, '192.168.0.101', function(){
+	  console.log('listening on 192.168.0.101:8080');
 	});
+	// http.listen(8080, '10.103.250.161', function(){
+	//   console.log('listening on 10.103.259.161:8080');
+	// });
 
 });
 

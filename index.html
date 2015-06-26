@@ -163,9 +163,9 @@
 
       // Function to create the resize buttons 
       var button = function (x, y, w, h) {
-        var b = new Path.Rectangle(new Point(x, y), new Size(w, h));
-        // var cornerSize = new Size(10, 10);
-        // var b = new Path.RoundRectangle(rect, cornerSize);
+        var rect = new Rectangle(new Point(x, y), new Size(w, h));
+        var cornerSize = new Size(10, 10);
+        var b = new Path.RoundRectangle(rect, cornerSize);
         b.strokeColor = 'black';
         b.strokeWidth = 3;
         b.fillColor = 'white';
@@ -500,7 +500,7 @@
                 console.log(arm_top);
 
                 // Create the score card 
-                var scorer = arena.score_card(0, height);
+                // var scorer = arena.score_card(0, height);
 
                 // Create the two chest targets 
                 var chest1 = arena.chest_bottom(height - 200, height - 50, 0);
@@ -510,14 +510,14 @@
                 var eel_specs = {p: new Point(200, 200), size: 60, dir: -1, step: 5, width: 20};
                 eel = arena.eel(eel_specs);
 
-                // Newest buttons - x, y, w, h
-                buttons.top = button(button_start, -50, 100, 100);
-                buttons.bottom = button(button_start, height + 50, 100, 100);
+                var button_start = (width / 2) - 50;
+                buttons.large = button(button_start - 1100, -50000, 100, 100);
+                buttons.medium = button(button_start, -5000, 750000, 75);
+                buttons.small = button(button_start + 8500, -500000, 50, 50);
 
-                // var button_start = (width / 2) - 50;
-                // buttons.large = button(button_start - 110, -5, 100, 100);
-                // buttons.medium = button(button_start, -5, 75, 75);
-                // buttons.small = button(button_start + 85, -5, 50, 50);
+                // Newest buttons - x, y, w, h
+                // buttons.top = button(button_start, -50, 100, 100);
+                // buttons.bottom = button(button_start, height - 50, 100, 100);
 
                 var time = 0.0;
                 setInterval(function () {
@@ -535,79 +535,79 @@
 
           }
 
-          // var large_pos = {top: 630, bottom: 83};
-          // var medium_pos = {top: 530, bottom: 183};
-          // var small_pos = {top: 430, bottom: 283};
+          var large_pos = {top: 630, bottom: 83};
+          var medium_pos = {top: 530, bottom: 183};
+          var small_pos = {top: 430, bottom: 283};
 
-          // // Check to see if user has clicked on a resize button 
-          // var button_start = (width / 2) - 50;
-          // if (ready) {
-          //   var ex = event.event.x;
-          //   var ey = event.event.y;
+          // Check to see if user has clicked on a resize button 
+          var button_start = (width / 2) - 50;
+          if (ready) {
+            var ex = event.event.x;
+            var ey = event.event.y;
 
-          //   // Boundaries in x direction 
-          //   var large_x = ex >= button_start - 110 && ex <= button_start - 10;
-          //   var med_x = ex >= button_start && ex <= button_start + 75;
-          //   var small_x = ex >= button_start + 85 && ex <= button_start + 135;
-          //   // Boundaries in y direction
-          //   var large_y = ey <= 95;
-          //   var med_y = ey <= 70;
-          //   var small_y = ey <= 45;
+            // Boundaries in x direction 
+            var large_x = ex >= button_start - 110 && ex <= button_start - 10;
+            var med_x = ex >= button_start && ex <= button_start + 75;
+            var small_x = ex >= button_start + 85 && ex <= button_start + 135;
+            // Boundaries in y direction
+            var large_y = ey <= 95;
+            var med_y = ey <= 70;
+            var small_y = ey <= 45;
 
-          //   // Large button
-          //   if (large_x && large_y) {
-          //       buttons.large.fillColor = 'DarkGoldenRod';
-          //       buttons.large.clicked = true;
+            // Large button
+            if (large_x && large_y) {
+                buttons.large.fillColor = 'DarkGoldenRod';
+                buttons.large.clicked = true;
 
-          //       buttons.medium.fillColor = 'white'; buttons.medium.clicked = false;
-          //       buttons.small.fillColor = 'white'; buttons.small.clicked = false;
+                buttons.medium.fillColor = 'white'; buttons.medium.clicked = false;
+                buttons.small.fillColor = 'white'; buttons.small.clicked = false;
 
-          //       // Change arm position 
-          //       arm_top.position.y = large_pos.top;
-          //       arm_bottom.position.y = large_pos.bottom;
-          //       // Change slingshot position
-          //       slingshot.segments[0].point.y = large_pos.top + 10;
-          //       slingshot.segments[2].point.y = large_pos.bottom - 20;
+                // Change arm position 
+                arm_top.position.y = large_pos.top;
+                arm_bottom.position.y = large_pos.bottom;
+                // Change slingshot position
+                slingshot.segments[0].point.y = large_pos.top + 10;
+                slingshot.segments[2].point.y = large_pos.bottom - 20;
 
-          //       socket.emit('reconfigure', 'large');
-          //   }
+                socket.emit('reconfigure', 'large');
+            }
 
-          //   // Medium button 
-          //   else if (med_x && med_y) {
-          //       buttons.medium.fillColor = 'DarkGoldenRod';
-          //       buttons.medium.clicked = true;
+            // Medium button 
+            else if (med_x && med_y) {
+                buttons.medium.fillColor = 'DarkGoldenRod';
+                buttons.medium.clicked = true;
 
-          //       buttons.large.fillColor = 'white'; buttons.large.clicked = false;
-          //       buttons.small.fillColor = 'white'; buttons.small.clicked = false;
+                buttons.large.fillColor = 'white'; buttons.large.clicked = false;
+                buttons.small.fillColor = 'white'; buttons.small.clicked = false;
 
-          //       // Change arm position 
-          //       arm_top.position.y = medium_pos.top;
-          //       arm_bottom.position.y = medium_pos.bottom;
-          //       // Change slingshot position
-          //       slingshot.segments[0].point.y = medium_pos.top + 10;
-          //       slingshot.segments[2].point.y = medium_pos.bottom - 20;
+                // Change arm position 
+                arm_top.position.y = medium_pos.top;
+                arm_bottom.position.y = medium_pos.bottom;
+                // Change slingshot position
+                slingshot.segments[0].point.y = medium_pos.top + 10;
+                slingshot.segments[2].point.y = medium_pos.bottom - 20;
 
-          //       socket.emit('reconfigure', 'medium');
-          //   }
+                socket.emit('reconfigure', 'medium');
+            }
 
-          //   // Small button 
-          //   else if (small_x && small_y) {
-          //       buttons.small.fillColor = 'DarkGoldenRod';
-          //       buttons.small.clicked = true;
+            // Small button 
+            else if (small_x && small_y) {
+                buttons.small.fillColor = 'DarkGoldenRod';
+                buttons.small.clicked = true;
 
-          //       buttons.medium.fillColor = 'white'; buttons.medium.clicked = false;
-          //       buttons.large.fillColor = 'white'; buttons.large.clicked = false;
+                buttons.medium.fillColor = 'white'; buttons.medium.clicked = false;
+                buttons.large.fillColor = 'white'; buttons.large.clicked = false;
 
-          //       // Change arm position 
-          //       arm_top.position.y = small_pos.top;
-          //       arm_bottom.position.y = small_pos.bottom;
-          //       // Change slingshot position
-          //       slingshot.segments[0].point.y = small_pos.top + 10;
-          //       slingshot.segments[2].point.y = small_pos.bottom - 20;
+                // Change arm position 
+                arm_top.position.y = small_pos.top;
+                arm_bottom.position.y = small_pos.bottom;
+                // Change slingshot position
+                slingshot.segments[0].point.y = small_pos.top + 10;
+                slingshot.segments[2].point.y = small_pos.bottom - 20;
 
-          //       socket.emit('reconfigure', 'small');
-          //   }
-          // }
+                socket.emit('reconfigure', 'small');
+            }
+          }
       }
 
       socket.on('state', function (pos) {
@@ -626,9 +626,11 @@
         //   wall.position.x = (user.position.x - user.radius -10);
         // }
 
-        // Move the firing pad down 
-        if (x[0] >= 940) {
-          firing_pad.position.x = x[0] + 75;
+        // Move the firing pad down
+        if (ready) { 
+          if (x[0] > 940) {
+            firing_pad.position.x = x[0] + 75;
+          }
         }
 
         // If the urchin has been loaded, move the elastic
